@@ -1,0 +1,6 @@
+# IDE Folders
+.idea/
+.vscode/
+
+# Virtual Environment
+.venv/
