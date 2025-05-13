@@ -1,12 +1,6 @@
 """Mean Average Precision (MAP) calculation module.
 This module provides functions for computing Mean Average Precision (MAP)
 """
-"""Term frequency (TF) and inverse document frequency (IDF) calculation module.
-
-This module provides functions for computing various TF-IDF schemes:
-- Term Frequency (TF) schemes: raw, log, binary, augmented
-- Inverse Document Frequency (IDF) schemes: raw, log
-"""
 
 def compute_average_precision(relevant_documents, retrieved_documents, k=None):
     """
