@@ -3,7 +3,6 @@ This module tests the BERT embedding and similarity calculation functions.
 """
 
 import pytest
-import os
 import numpy as np
 from typing import Tuple
 from utils import compute_bert, compute_bert_document_embeddings, rank_documents_by_similarity, get_bert_model_and_tokenizer
