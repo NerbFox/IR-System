@@ -2,11 +2,11 @@
 This module tests the MAP calculation using TF-IDF to generate predictions.
 """
 
-# --- Tests for MAP using TF-IDF to generate predictions ---
-
 import pytest
 from utils import compute_average_precision, compute_mean_average_precision
 from utils import xp, compute_tfidf
+
+# --- Tests for MAP using TF-IDF to generate predictions ---
 
 @pytest.fixture
 def sample_documents():
