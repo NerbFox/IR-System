@@ -8,5 +8,7 @@ This module automatically selects the appropriate array computation library
 
 from .cuda_utils import xp
 from .tf_idf_calculation import compute_tf, compute_idf, compute_tfidf
+from .map_calculation import compute_average_precision, compute_mean_average_precision
 
-__all__ = ['xp', 'compute_tf', 'compute_idf', 'compute_tfidf']
+__all__ = ['xp', 'compute_tf', 'compute_idf', 'compute_tfidf',
+           'compute_average_precision', 'compute_mean_average_precision']
