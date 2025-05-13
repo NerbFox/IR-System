@@ -7,3 +7,9 @@
 
 # Python Cache
 __pycache__/
+
+# Bert Models
+/models
+
+# Embeddings 
+*.npy
