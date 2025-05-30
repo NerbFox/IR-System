@@ -61,16 +61,27 @@
                         </widget>
                       </item>
                       <item row="1" column="0" colspan="2">
+                        <layout class="QHBoxLayout" name="horizontalLayout_folder">
+                          <item>
+                            <widget class="QLineEdit" name="lineEdit">
+                              <property name="placeholderText">
+                                <string>Enter folder path manually...</string>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QPushButton" name="pushButton_process">
+                              <property name="text">
+                                <string>Process</string>
+                              </property>
+                            </widget>
+                          </item>
+                        </layout>
+                      </item>
+                      <item row="1" column="2" colspan="2">
                         <widget class="QPushButton" name="pushButton_file">
                           <property name="text">
                           <string>SELECT FILE</string>
-                          </property>
-                        </widget>
-                      </item>
-                      <item row="1" column="2" colspan="2">
-                        <widget class="QPushButton" name="pushButton_folder">
-                          <property name="text">
-                          <string>SELECT FOLDER</string>
                           </property>
                         </widget>
                       </item>
@@ -92,7 +103,7 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
               <item row="0" column="0">
-                <widget class="QPushButton" name="pushButton_folder2">
+                <widget class="QPushButton" name="pushButton_folder">
                   <property name="text">
                   <string>SELECT FOLDER</string>
                   </property>

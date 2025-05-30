@@ -122,17 +122,11 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
             self.main.pushButton_folder.clicked.connect(
                 lambda: QFileDialog.getExistingDirectory(self.main)
             )
-            self.main.pushButton_folder2.clicked.connect(
-                lambda: QFileDialog.getExistingDirectory(self.main)
-            )
         else:
             self.main.pushButton_file.clicked.connect(
                 lambda: QFileDialog.get_open_file_name(self.main)
             )
             self.main.pushButton_folder.clicked.connect(
-                lambda: QFileDialog.get_existing_directory(self.main)
-            )
-            self.main.pushButton_folder2.clicked.connect(
                 lambda: QFileDialog.get_existing_directory(self.main)
             )
 
@@ -151,8 +145,8 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
     
     def toggle_input_mode_buttons(self):
         is_single = self.main.radioButton_single.checked
-        self.main.pushButton_folder.set_disabled(is_single)
-        self.main.pushButton_file.set_disabled(not is_single)
+        self.main.pushButton_file.set_disabled(is_single)
+        self.main.pushButton_process.set_disabled(not is_single)
 
 
 
