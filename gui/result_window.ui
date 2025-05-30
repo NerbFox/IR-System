@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1501</width>
+    <width>1800</width>
     <height>806</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>640</width>
+    <height>600</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>BERT - IR SYSTEM</string>
@@ -48,7 +54,7 @@
              <item>
               <widget class="QGroupBox" name="groupBox_2">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -57,14 +63,6 @@
                 <string>Original Query</string>
                </property>
                <widget class="QWidget" name="verticalLayoutWidget">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>258</width>
-                  <height>194</height>
-                 </rect>
-                </property>
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
                   <widget class="QTableWidget" name="tableWidget_exp">
@@ -103,7 +101,7 @@
              <item>
               <widget class="QGroupBox" name="groupBox">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -112,14 +110,6 @@
                 <string>Expanded Query</string>
                </property>
                <widget class="QWidget" name="verticalLayoutWidget_2">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>258</width>
-                  <height>194</height>
-                 </rect>
-                </property>
                 <layout class="QVBoxLayout" name="verticalLayout_2">
                  <item>
                   <widget class="QTableWidget" name="tableWidget_exp_2">

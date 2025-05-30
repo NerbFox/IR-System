@@ -100,6 +100,7 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
         
         self.inverted_window = None
         self.main.pushButton_2.clicked.connect(self.show_inverted_file_window)
+        self.main.pushButton_1.clicked.connect(self.show_expanded_window)
 
         try:
             self.main.setWindowTitle(f'{self.main.windowTitle()}')
@@ -153,6 +154,10 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def show_inverted_file_window(self):
         self.inverted_window = InvertedFileWindow()
         self.inverted_window.show()
+    
+    def show_expanded_window(self):
+        self.expanded_window = ExpandedWindow()
+        self.expanded_window.show()
 
 
 
@@ -206,6 +211,38 @@ class ResultWindow(QMainWindow):
 
         else:
             raise RuntimeError("Unsupported Qt version.")
+        
+        
+class ExpandedWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Expanded Query Results")
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        
+        logo = QIcon("img/logo.png")
+        self.setWindowIcon(logo)
+
+        if '--pyside6' in sys.argv:
+            loader = QUiLoader()
+            ui_file = os.path.abspath("queryexp_window.ui")
+            self.ui = loader.load(ui_file, None)
+            if self.ui is None:
+                raise RuntimeError(f"Failed to load UI file: {ui_file}")
+            self.setCentralWidget(self.ui)
+
+        elif '--pyqt5' in sys.argv or '--pyqt6' in sys.argv:
+            self.ui = uic.loadUi('queryexp_window.ui')
+            self.setCentralWidget(self.ui)
+
+        else:
+            raise RuntimeError("Unsupported Qt version.")
+        
+        self.ui.pushButton.clicked.connect(self.show_result_window)
+        
+    def show_result_window(self):
+        self.result_window = ResultWindow()
+        self.result_window.show()
+        self.close()
         
 T0 = 1000
 
