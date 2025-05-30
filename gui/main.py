@@ -183,6 +183,30 @@ class InvertedFileWindow(QMainWindow):
             raise RuntimeError("Unsupported Qt version.")
 
 
+class ResultWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Retrieval Results")
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        
+        logo = QIcon("img/logo.png")
+        self.setWindowIcon(logo)
+
+        if '--pyside6' in sys.argv:
+            loader = QUiLoader()
+            ui_file = os.path.abspath("result_window.ui")
+            loaded = loader.load(ui_file, None)
+            if loaded is None:
+                raise RuntimeError(f"Failed to load UI file: {ui_file}")
+            self.setCentralWidget(loaded)
+
+        elif '--pyqt5' in sys.argv or '--pyqt6' in sys.argv:
+            ui = uic.loadUi('result_window.ui')
+            self.setCentralWidget(ui)
+
+        else:
+            raise RuntimeError("Unsupported Qt version.")
+        
 T0 = 1000
 
 if __name__ == "__main__":
