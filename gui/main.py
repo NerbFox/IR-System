@@ -1,73 +1,194 @@
-from PyQt6 import QtWidgets, uic
-from PyQt6.QtWidgets import QFileDialog
-import sys
 import os
+import sys
+import logging
+from multiprocessing import freeze_support
 
-class MyWindow(QtWidgets.QMainWindow):
+os.environ["QT_QUICK_BACKEND"] = "software"
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
+
+if not any(flag in sys.argv for flag in ["--pyside2", "--pyside6", "--pyqt5", "--pyqt6"]):
+    sys.argv.append("--pyside6")
+
+qt_toolkit = None
+
+if '--pyside2' in sys.argv:
+    from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PySide2.QtCore import QTimer, Qt, QCoreApplication
+    from PySide2.QtGui import QIcon
+    from PySide2.QtUiTools import QUiLoader
+    qt_toolkit = "pyside2"
+
+elif '--pyside6' in sys.argv:
+    from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PySide6.QtCore import QTimer, Qt, QCoreApplication
+    from PySide6.QtGui import QIcon, QPixmap
+    from PySide6.QtUiTools import QUiLoader
+    from __feature__ import snake_case, true_property
+    qt_toolkit = "pyside6"
+
+elif '--pyqt5' in sys.argv:
+    from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PyQt5.QtCore import QTimer, Qt, QCoreApplication
+    from PyQt5 import uic, QtWebEngineWidgets
+    from PyQt5.QtGui import QIcon
+    qt_toolkit = "pyqt5"
+
+elif '--pyqt6' in sys.argv:
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PyQt6.QtCore import QTimer, Qt, QCoreApplication
+    from PyQt6.QtGui import QIcon
+    from PyQt6 import uic, QtWebEngineWidgets
+    qt_toolkit = "pyqt6"
+
+from qt_material import apply_stylesheet, QtStyleTools, density
+
+if qt_toolkit and hasattr(Qt, 'AA_ShareOpenGLContexts'):
+    try:
+        QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    except:
+        QCoreApplication.set_attribute(Qt.AA_ShareOpenGLContexts)
+
+app = QApplication([])
+freeze_support()
+try:
+    app.processEvents()
+    app.setQuitOnLastWindowClosed(False)
+    app.lastWindowClosed.connect(app.quit)
+except:
+    app.process_events()
+    app.quit_on_last_window_closed = False
+    app.lastWindowClosed.connect(app.quit)
+
+extra = {
+    'danger': '#dc3545',
+    'warning': '#ffc107',
+    'success': '#17a2b8',
+    'font_family': 'Roboto',
+    'density_scale': '0',
+    'button_shape': 'default',
+}
+
+class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def __init__(self):
-        super(MyWindow, self).__init__()    
-        uic.loadUi("windows/gui.ui", self)
+        super().__init__()
         
-        self.setFixedSize(700, 400)
+        if '--pyside2' in sys.argv:
+            self.main = QUiLoader().load('main_window.ui', self)
 
-        self.radioButton.toggled.connect(self.handle_radio_selection)
-        self.radioButton_2.toggled.connect(self.handle_radio_selection)
+        elif '--pyside6' in sys.argv:
+            self.main = QUiLoader().load('main_window.ui', self)
 
-        self.pushButton.clicked.connect(self.open_file_dialog)
-        self.pushButton_2.clicked.connect(self.open_file_dialog2)
+        elif '--pyqt5' in sys.argv:
+            self.main = uic.loadUi('main_window.ui', self)
 
-        self.pushButton.hide()
-        self.label_3.hide()
-        
-        self.weightButton_1.toggled.connect(self.handle_weight_selection)
-        self.weightButton_2.toggled.connect(self.handle_weight_selection)
-        self.weightButton_3.toggled.connect(self.handle_weight_selection)
-        self.weightButton_4.toggled.connect(self.handle_weight_selection)
-        
-        self.spinBox.setMinimum(0)
-        self.spinBox.hide()
-        self.buttonExp_1.toggled.connect(self.handle_expansion_selection)
-        self.buttonExp_2.toggled.connect(self.handle_expansion_selection)
-        
-        self.buttonInverted.hide()
-        
+        elif '--pyqt6' in sys.argv:
+            self.main = uic.loadUi('main_window.ui', self)
 
-    def handle_radio_selection(self):
-        if self.radioButton.isChecked():
-            self.lineEdit.show()
-            self.pushButton.hide()
-            self.label_3.hide()
-        elif self.radioButton_2.isChecked():
-            self.lineEdit.hide()
-            self.pushButton.show()
-            self.label_3.show()
-
-    def open_file_dialog(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*)")
-        if file_name:
-            self.label_3.setText(f"Selected file: {os.path.basename(file_name)}")
-            
-    def open_file_dialog2(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*)")
-        if file_name:
-            self.label_7.setText(f"Selected file: {os.path.basename(file_name)}")
-            self.buttonInverted.show()
-            
-    def handle_weight_selection(self):
-        if self.weightButton_2.isChecked():
-            self.label_6.hide()
-            self.comboBox.hide()
         else:
-            self.label_6.show()
-            self.comboBox.show()
-            
-    def handle_expansion_selection(self):
-        if self.buttonExp_1.isChecked():
-            self.spinBox.hide()
-        else:
-            self.spinBox.show()
+            logging.error('must include --pyside2, --pyside6 or --pyqt5 in args!')
+            sys.exit()
 
-app = QtWidgets.QApplication(sys.argv)
-window = MyWindow()
-window.show()
-sys.exit(app.exec())
+        self.main.radioButton_idf.toggled.connect(self.toggle_tf_method_visibility)
+        self.main.radioButton_tf.toggled.connect(self.toggle_tf_method_visibility)
+        self.main.radioButton_tfidf.toggled.connect(self.toggle_tf_method_visibility)
+        self.main.radioButton_tfidfxnorm.toggled.connect(self.toggle_tf_method_visibility)
+        self.main.radioButton_single.toggled.connect(self.toggle_input_mode_buttons)
+        self.main.radioButton_batch.toggled.connect(self.toggle_input_mode_buttons)
+
+        self.toggle_input_mode_buttons()
+        self.toggle_tf_method_visibility()
+
+        try:
+            self.main.setWindowTitle(f'{self.main.windowTitle()}')
+        except:
+            self.main.window_title = f'{self.main.window_title}'
+
+        self.custom_styles()
+        self.add_menu_theme(self.main, self.main.menuStyles)
+        self.show_dock_theme(self.main)
+
+        logo = QIcon("img/logo.png")
+
+        try:
+            self.main.setWindowIcon(logo)
+        except:
+            self.main.window_icon = logo
+
+        if hasattr(QFileDialog, 'getExistingDirectory'):
+            self.main.pushButton_file.clicked.connect(
+                lambda: QFileDialog.getOpenFileName(self.main)
+            )
+            self.main.pushButton_folder.clicked.connect(
+                lambda: QFileDialog.getExistingDirectory(self.main)
+            )
+            self.main.pushButton_folder2.clicked.connect(
+                lambda: QFileDialog.getExistingDirectory(self.main)
+            )
+        else:
+            self.main.pushButton_file.clicked.connect(
+                lambda: QFileDialog.get_open_file_name(self.main)
+            )
+            self.main.pushButton_folder.clicked.connect(
+                lambda: QFileDialog.get_existing_directory(self.main)
+            )
+            self.main.pushButton_folder2.clicked.connect(
+                lambda: QFileDialog.get_existing_directory(self.main)
+            )
+
+    def custom_styles(self):
+        try:
+            if hasattr(self.main, "tableWidget_2"):
+                for r in range(self.main.tableWidget_2.rowCount()):
+                    self.main.tableWidget_2.setRowHeight(r, 36)
+
+        except Exception as e:
+            print("Gagal set row height:", e)
+    
+    def toggle_tf_method_visibility(self):
+        is_idf = self.main.radioButton_idf.checked
+        self.main.groupBox_tf_method.set_disabled(is_idf)
+    
+    def toggle_input_mode_buttons(self):
+        is_single = self.main.radioButton_single.checked
+        self.main.pushButton_folder.set_disabled(is_single)
+        self.main.pushButton_file.set_disabled(not is_single)
+
+
+
+T0 = 1000
+
+if __name__ == "__main__":
+    def take_screenshot():
+        pixmap = frame.main.grab()
+        pixmap.save(os.path.join('screenshots', f'{theme}.png'))
+        print(f'Saving {theme}')
+
+    if len(sys.argv) > 2:
+        theme = sys.argv[2]
+        try:
+            QTimer.singleShot(T0, take_screenshot)
+            QTimer.singleShot(T0 * 2, app.closeAllWindows)
+        except:
+            QTimer.single_shot(T0, take_screenshot)
+            QTimer.single_shot(T0 * 2, app.closeAllWindows)
+    else:
+        theme = 'default'
+
+    apply_stylesheet(
+        app,
+        theme + '.xml',
+        invert_secondary=('light' in theme and 'dark' not in theme),
+        extra=extra,
+    )
+
+    frame = RuntimeStylesheets()
+    try:
+        frame.main.showMaximized()
+    except:
+        frame.main.show_maximized()
+
+    if hasattr(app, 'exec'):
+        app.exec()
+    else:
+        app.exec_()
