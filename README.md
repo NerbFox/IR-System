@@ -49,6 +49,7 @@ A simple Python-based GUI built with Qt (using PySide2/PySide6 or PyQt5/PyQt6) a
 ## Technologies Used
 - PyQt
 - Qt-Material
+- NumPy and CuPy
 
 <a name="setup"></a>
 
