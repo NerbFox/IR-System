@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1800</width>
-    <height>806</height>
+    <height>798</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -21,7 +21,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_1">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget_1">
       <property name="tabPosition">
        <enum>QTabWidget::West</enum>
@@ -34,6 +34,58 @@
         <string>Document Retrieval</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2_inverted">
+        <item row="0" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox_1_retrieved">
+          <property name="title">
+           <string>Input Query IDX</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="class" stdset="0">
+           <string>fill_background</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3_inverted">
+           <item row="0" column="0" colspan="4">
+            <layout class="QHBoxLayout" name="horizontalLayout_folder_retrieved">
+             <item>
+              <widget class="QSpinBox" name="spinBox_retrieved">
+               <property name="minimum">
+                <number>0</number>
+               </property>
+               <property name="maximum">
+                <number>0</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_process_retrieved">
+               <property name="text">
+                <string>Process</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="exp_text">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Expanded Query MAP:</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0" colspan="4">
          <widget class="QGroupBox" name="groupBox_5_retrieved">
           <property name="title">
@@ -63,7 +115,22 @@
                 <string>Original Query</string>
                </property>
                <widget class="QWidget" name="verticalLayoutWidget">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>258</width>
+                  <height>194</height>
+                 </rect>
+                </property>
                 <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Original Query</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item>
                   <widget class="QTableWidget" name="tableWidget_exp">
                    <property name="sizePolicy">
@@ -110,7 +177,22 @@
                 <string>Expanded Query</string>
                </property>
                <widget class="QWidget" name="verticalLayoutWidget_2">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>258</width>
+                  <height>194</height>
+                 </rect>
+                </property>
                 <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <item>
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Expanded Query</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item>
                   <widget class="QTableWidget" name="tableWidget_exp_2">
                    <property name="sizePolicy">
@@ -150,43 +232,25 @@
           </layout>
          </widget>
         </item>
-        <item row="0" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox_1_retrieved">
-          <property name="title">
-           <string>Input Query IDX</string>
+        <item row="3" column="0">
+         <widget class="QLabel" name="ori_text">
+          <property name="text">
+           <string>Original Query MAP:</string>
           </property>
-          <property name="checkable">
-           <bool>false</bool>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="exp_value">
+          <property name="text">
+           <string>0.00</string>
           </property>
-          <property name="class" stdset="0">
-           <string>fill_background</string>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="ori_value">
+          <property name="text">
+           <string>0.00</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3_inverted">
-           <item row="0" column="0" colspan="4">
-            <layout class="QHBoxLayout" name="horizontalLayout_folder_retrieved">
-             <item>
-              <widget class="QSpinBox" name="spinBox_term_limit_retrieved">
-               <property name="minimum">
-                <number>0</number>
-               </property>
-               <property name="maximum">
-                <number>0</number>
-               </property>
-               <property name="value">
-                <number>0</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_process_retrieved">
-               <property name="text">
-                <string>Process</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
          </widget>
         </item>
        </layout>

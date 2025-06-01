@@ -2,7 +2,8 @@ import os
 import sys
 import logging
 from multiprocessing import freeze_support
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils import OriginalProcess
 os.environ["QT_QUICK_BACKEND"] = "software"
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
 os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
@@ -13,28 +14,28 @@ if not any(flag in sys.argv for flag in ["--pyside2", "--pyside6", "--pyqt5", "-
 qt_toolkit = None
 
 if '--pyside2' in sys.argv:
-    from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
     from PySide2.QtCore import QTimer, Qt, QCoreApplication
     from PySide2.QtGui import QIcon
     from PySide2.QtUiTools import QUiLoader
     qt_toolkit = "pyside2"
 
 elif '--pyside6' in sys.argv:
-    from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QLabel, QVBoxLayout
+    from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QLabel, QVBoxLayout, QTableWidgetItem
     from PySide6.QtCore import QTimer, Qt, QCoreApplication, QFile
     from PySide6.QtGui import QIcon, QPixmap
     from PySide6.QtUiTools import QUiLoader
     qt_toolkit = "pyside6"
 
 elif '--pyqt5' in sys.argv:
-    from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+    from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
     from PyQt5.QtCore import QTimer, Qt, QCoreApplication, QFile
     from PyQt5 import uic, QtWebEngineWidgets
     from PyQt5.QtGui import QIcon
     qt_toolkit = "pyqt5"
 
 elif '--pyqt6' in sys.argv:
-    from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QLabel, QVBoxLayout
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QLabel, QVBoxLayout,QTableWidgetItem
     from PyQt6.QtCore import QTimer, Qt, QCoreApplication
     from PyQt6.QtGui import QIcon
     from PyQt6 import uic, QtWebEngineWidgets
@@ -68,6 +69,8 @@ extra = {
     'button_shape': 'default',
 }
 
+original_process = OriginalProcess()
+
 class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def __init__(self):
         super().__init__()
@@ -87,20 +90,27 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
         else:
             logging.error('must include --pyside2, --pyside6 or --pyqt5 in args!')
             sys.exit()
-
+            
+        
+        self.ready_to_process = False
         self.main.radioButton_idf.toggled.connect(self.toggle_tf_method_visibility)
         self.main.radioButton_tf.toggled.connect(self.toggle_tf_method_visibility)
         self.main.radioButton_tfidf.toggled.connect(self.toggle_tf_method_visibility)
         self.main.radioButton_tfidfxnorm.toggled.connect(self.toggle_tf_method_visibility)
         self.main.radioButton_single.toggled.connect(self.toggle_input_mode_buttons)
         self.main.radioButton_batch.toggled.connect(self.toggle_input_mode_buttons)
-
+        self.tf_method = "log"
         self.toggle_input_mode_buttons()
         self.toggle_tf_method_visibility()
         
+        self.main.pushButton_process.setDisabled(True)
+        self.main.pushButton_process.clicked.connect(self.handle_input_process)
         self.inverted_window = None
+        self.main.pushButton_2.setDisabled(True)
         self.main.pushButton_2.clicked.connect(self.show_inverted_file_window)
         self.main.pushButton_1.clicked.connect(self.show_expanded_window)
+        self.main.combobox.currentIndexChanged.connect(self.handle_tf_method)
+        self.main.pushButton_relevant.clicked.connect(self.handle_relevant_input)
 
         try:
             self.main.setWindowTitle(f'{self.main.windowTitle()}')
@@ -120,17 +130,17 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
 
         if hasattr(QFileDialog, 'getExistingDirectory'):
             self.main.pushButton_file.clicked.connect(
-                lambda: QFileDialog.getOpenFileName(self.main)
+                lambda: self.handle_batch_input()
             )
             self.main.pushButton_folder.clicked.connect(
-                lambda: QFileDialog.getExistingDirectory(self.main)
+                lambda: self.handle_source_document_select()
             )
         else:
             self.main.pushButton_file.clicked.connect(
-                lambda: QFileDialog.get_open_file_name(self.main)
+                lambda: self.handle_batch_input()
             )
             self.main.pushButton_folder.clicked.connect(
-                lambda: QFileDialog.get_existing_directory(self.main)
+                lambda: self.handle_source_document_select()
             )
 
     def custom_styles(self):
@@ -148,8 +158,8 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
     
     def toggle_input_mode_buttons(self):
         is_single = self.main.radioButton_single.isChecked()
-        self.main.pushButton_file.setDisabled(is_single)
-        self.main.pushButton_process.setDisabled(not is_single)
+        self.main.pushButton_file.setDisabled(is_single or not self.ready_to_process)
+        self.main.pushButton_process.setDisabled(not is_single or not self.ready_to_process)
         
     def show_inverted_file_window(self):
         self.inverted_window = InvertedFileWindow()
@@ -158,11 +168,127 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def show_expanded_window(self):
         self.expanded_window = ExpandedWindow()
         self.expanded_window.show()
+        
+    def handle_tf_method(self):
+        if self.main.combobox.currentText() == "Logarithmic":
+            self.tf_method = "log"
+        elif self.main.combobox.currentText() == "Binary": 
+            self.tf_method = "binary"
+        elif self.main.combobox.currentText() == "Augmented":
+            self.tf_method = "augmented"
+        elif self.main.combobox.currentText() == "Raw":
+            self.tf_method = "raw"
+                    
 
-
-
-
-
+    def handle_source_document_select(self):
+        file_path, _ = QFileDialog.getOpenFileName(self.main, "Select Source Document", "", "All Files (*)")
+        if file_path:
+            tf = False
+            idf = False
+            normalize = False
+            
+            if self.main.radioButton_tf.isChecked():
+                tf = True
+            
+            if self.main.radioButton_idf.isChecked():
+                idf = True
+            
+            if self.main.radioButton_tfidf.isChecked():
+                tf = True
+                idf = True
+            
+            if self.main.radioButton_tfidfxnorm.isChecked():
+                tf = True
+                idf = True
+                normalize = True
+            
+            original_process.process_source(
+                file_path,
+                self.main.checkBox_2.isChecked(),
+                self.main.checkBox_1.isChecked(),
+                tf = tf,
+                idf = idf,
+                normalize= normalize,
+                scheme_tf = self.tf_method,
+                scheme_idf="log"
+            )
+            self.ready_to_process = True
+            self.main.pushButton_2.setDisabled(False)
+        else:
+            self.ready_to_process = False
+            self.main.pushButton_2.setDisabled(True)
+    
+    def handle_input_process(self):
+        input_text = self.main.lineEdit.text().strip()
+        if input_text:
+            tf = False
+            idf = False
+            normalize = False
+            
+            if self.main.radioButton_tf.isChecked():
+                tf = True
+            
+            if self.main.radioButton_idf.isChecked():
+                idf = True
+            
+            if self.main.radioButton_tfidf.isChecked():
+                tf = True
+                idf = True
+            
+            if self.main.radioButton_tfidfxnorm.isChecked():
+                tf = True
+                idf = True
+                normalize = True
+            
+            original_process.process_single_input(
+                input_text=input_text,
+                stop_word_elim=self.main.checkBox_2.isChecked(),
+                stemming=self.main.checkBox_1.isChecked(),
+                tf = tf,
+                idf = idf,
+                normalize= normalize,
+                scheme_tf = self.tf_method,
+                scheme_idf="log"
+            )
+            
+    def handle_batch_input(self):
+        file_path, _ = QFileDialog.getOpenFileName(self.main, "Select Input File", "", "All Files (*)")
+        if file_path:
+            tf = False
+            idf = False
+            normalize = False
+            
+            if self.main.radioButton_tf.isChecked():
+                tf = True
+            
+            if self.main.radioButton_idf.isChecked():
+                idf = True
+            
+            if self.main.radioButton_tfidf.isChecked():
+                tf = True
+                idf = True
+            
+            if self.main.radioButton_tfidfxnorm.isChecked():
+                tf = True
+                idf = True
+                normalize = True
+            
+            original_process.process_batch_input(
+                path_to_file=file_path,
+                stop_word_elim=self.main.checkBox_2.isChecked(),
+                stemming=self.main.checkBox_1.isChecked(),
+                tf = tf,
+                idf = idf,
+                normalize= normalize,
+                scheme_tf = self.tf_method,
+                scheme_idf="log"
+            )
+            
+    def handle_relevant_input(self):
+        file_path, _ = QFileDialog.getOpenFileName(self.main, "Select Input File", "", "All Files (*)")
+        if file_path:
+            original_process.set_relevant(filepath=file_path)
+            
 class InvertedFileWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -175,18 +301,41 @@ class InvertedFileWindow(QMainWindow):
         if '--pyside6' in sys.argv:
             loader = QUiLoader()
             ui_file = os.path.abspath("inverted_window.ui")
-            loaded = loader.load(ui_file, None)
-            if loaded is None:
+            self.ui = loader.load(ui_file, None)
+            if self.ui is None:
                 raise RuntimeError(f"Failed to load UI file: {ui_file}")
-            self.setCentralWidget(loaded)
+            self.setCentralWidget(self.ui)
 
         elif '--pyqt5' in sys.argv or '--pyqt6' in sys.argv:
-            ui = uic.loadUi('inverted_window.ui')
-            self.setCentralWidget(ui)
+            self.ui = uic.loadUi('inverted_window.ui')
+            self.setCentralWidget(self.ui)
 
         else:
             raise RuntimeError("Unsupported Qt version.")
-
+        self.ui.tableWidget_inverted.setRowCount(len(original_process.vocab))
+        self.ui.spinBox_inverted.setMaximum(max(original_process.source_indices))
+        self.ui.spinBox_inverted.setMinimum(min(original_process.source_indices))
+        
+        for row in range(len(original_process.vocab)):
+            term = original_process.vocab[row]
+            self.ui.tableWidget_inverted.setItem(row, 0, QTableWidgetItem(term))
+            
+        
+        self.ui.pushButton_process_inverted.clicked.connect(self.show_inverted_file)
+        
+        
+    def show_inverted_file(self):
+        try:
+            index = self.ui.spinBox_inverted.value()
+            inverted = original_process.get_inverted(index)
+            for row in range(len(original_process.vocab)):
+                self.ui.tableWidget_inverted.setItem(row, 1, QTableWidgetItem(str(inverted[0][row])))
+                self.ui.tableWidget_inverted.setItem(row, 2, QTableWidgetItem(str(inverted[1][row])))
+                self.ui.tableWidget_inverted.setItem(row, 3, QTableWidgetItem(str(inverted[2][row])))
+        except ValueError:
+            pass
+        
+        
 
 class ResultWindow(QMainWindow):
     def __init__(self):
@@ -200,17 +349,29 @@ class ResultWindow(QMainWindow):
         if '--pyside6' in sys.argv:
             loader = QUiLoader()
             ui_file = os.path.abspath("result_window.ui")
-            loaded = loader.load(ui_file, None)
-            if loaded is None:
+            self.ui = loader.load(ui_file, None)
+            if self.ui is None:
                 raise RuntimeError(f"Failed to load UI file: {ui_file}")
-            self.setCentralWidget(loaded)
+            self.setCentralWidget(self.ui)
 
         elif '--pyqt5' in sys.argv or '--pyqt6' in sys.argv:
-            ui = uic.loadUi('result_window.ui')
-            self.setCentralWidget(ui)
+            self.ui = uic.loadUi('result_window.ui')
+            self.setCentralWidget(self.ui)
 
         else:
             raise RuntimeError("Unsupported Qt version.")
+        
+        self.ui.tableWidget_exp.setRowCount(len(original_process.source_indices))
+        self.ui.spinBox_retrieved.setMaximum(max(original_process.input_indices))
+        self.ui.spinBox_retrieved.setMinimum(min(original_process.input_indices))
+        self.ui.pushButton_process_retrieved.clicked.connect(self.show_result)
+        self.ui.ori_value.setText(str(original_process.get_MAP()))
+    
+    def show_result(self):
+        index = self.ui.spinBox_retrieved.value()
+        ranking = original_process.get_ranking(index)
+        for row in range(len(original_process.source_indices)):
+            self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
         
         
 class ExpandedWindow(QMainWindow):
