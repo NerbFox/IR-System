@@ -27,7 +27,7 @@ def compute_bert(sentences, model, tokenizer):
         sentences = [sentences]  # Ensure sentences is a list
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Computing BERT embeddings on device: {device}")
+    # print(f"Computing BERT embeddings on device: {device}", end='\r')
     model = model.to(device)
 
     encoding = tokenizer.batch_encode_plus(
@@ -116,7 +116,7 @@ def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_doc
     # Check if the embeddings are already saved locally
     name = os.path.join(os.getcwd(), name)
     if os.path.exists(name) and not recompute:
-        print(f"Loading embeddings from {name}")
+        # print(f"Loading embeddings from {name}")
         embeddings = np.load(name)
     else:
         print(f"Computing and saving embeddings to {name}")
@@ -137,7 +137,7 @@ def get_document_words(documents, name='words.npy'):
     # Use absolute path based on current working directory
     name = os.path.join(os.getcwd(), name)
     if os.path.exists(name):
-        print(f"Loading words from {name}")
+        # print(f"Loading words from {name}", end='\r')
         words = np.load(name, allow_pickle=True).tolist()
     else:
         print(f"Extracting unique words and saving to {name}")

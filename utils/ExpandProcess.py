@@ -116,15 +116,31 @@ class ExpandProcess:
         
         return ranked_indices, similarity_scores
             
-    def get_ranking(self, index):
-        if index in self.input_indices:
-            index_position = self.input_indices.index(index)
-            ranked_results = rank_documents_by_similarity(
-                self.input_tf_matrix[index_position],
-                self.source_tf_matrix,
-                self.source_indices
-            )
-        
+    def get_ranking(self, index, full_bert):
+        """
+        Get the ranking of documents for a specific input index.
+
+        Args:
+            index (int): The index of the input document.
+            full_bert (bool): Whether to use BERT-based ranking.
+
+        Returns:
+            list: Ranked document indices and their similarity scores.
+        """
+        if index not in self.input_indices:
+            raise ValueError(f"Index {index} not found in input indices.")
+
+        idx = self.input_indices.index(index)
+
+        if full_bert:
+            ranked_results = list(zip(self.list_ranking[idx], self.list_similarity_scores[idx]))
+            return sorted(ranked_results, key=lambda x: x[1], reverse=True)
+
+        ranked_results = rank_documents_by_similarity(
+            self.input_tf_matrix[idx],
+            self.source_tf_matrix,
+            self.source_indices
+        )
         return ranked_results
     
     def get_inverted(self, index):
@@ -143,7 +159,7 @@ class ExpandProcess:
         """
         self.relevant = process_relevant_documents(filepath)
         
-    def get_MAP(self):
+    def get_MAP(self, full_bert=True):
         """
         Compute the Mean Average Precision (MAP) for the relevant documents.
         
@@ -160,7 +176,7 @@ class ExpandProcess:
             if not relevant_docs:
                 continue 
             # print(f"Processing input index: {input_idx}")
-            ranked_results = self.get_ranking(input_idx) 
+            ranked_results = self.get_ranking(input_idx, full_bert=full_bert) 
             ranked_doc_indices = [doc_idx for doc_idx, _ in ranked_results]
 
             num_relevant = 0
