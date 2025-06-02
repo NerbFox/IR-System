@@ -366,12 +366,26 @@ class ResultWindow(QMainWindow):
         self.ui.spinBox_retrieved.setMinimum(min(original_process.input_indices))
         self.ui.pushButton_process_retrieved.clicked.connect(self.show_result)
         self.ui.ori_value.setText(str(original_process.get_MAP()))
+        self.ui.export_original.clicked.connect(self.export_original_ranking)
     
     def show_result(self):
         index = self.ui.spinBox_retrieved.value()
         ranking = original_process.get_ranking(index)
         for row in range(len(original_process.source_indices)):
             self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
+            
+    def export_original_ranking(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save Ranking", "", "Text Files (*.text)")
+        if file_path:
+            with open(file_path, 'w') as f:
+                for index in original_process.input_indices:
+                    ranking = original_process.get_ranking(index)
+                    f.write(".I\n")
+                    f.write(f"{index}\n")
+                    f.write(".X\n")
+                    for doc_index, score in ranking:
+                        f.write(f"{doc_index} {score}\n")
+                    f.write("\n")
         
         
 class ExpandedWindow(QMainWindow):

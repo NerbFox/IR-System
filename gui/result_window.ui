@@ -34,6 +34,40 @@
         <string>Document Retrieval</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2_inverted">
+        <item row="6" column="0">
+         <widget class="QLabel" name="exp_text">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Expanded Query MAP:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="exp_value">
+          <property name="text">
+           <string>0.00</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="ori_value">
+          <property name="text">
+           <string>0.00</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="ori_text">
+          <property name="text">
+           <string>Original Query MAP:</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0" colspan="4">
          <widget class="QGroupBox" name="groupBox_1_retrieved">
           <property name="title">
@@ -71,19 +105,6 @@
             </layout>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="exp_text">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Expanded Query MAP:</string>
-          </property>
          </widget>
         </item>
         <item row="1" column="0" colspan="4">
@@ -232,24 +253,17 @@
           </layout>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="ori_text">
+        <item row="5" column="0" colspan="2">
+         <widget class="QPushButton" name="export_original">
           <property name="text">
-           <string>Original Query MAP:</string>
+           <string>Export Original Query Retrieval</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="exp_value">
+        <item row="8" column="0" colspan="2">
+         <widget class="QPushButton" name="export_expanded">
           <property name="text">
-           <string>0.00</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="ori_value">
-          <property name="text">
-           <string>0.00</string>
+           <string>Export Expanded Query Retrieval</string>
           </property>
          </widget>
         </item>
