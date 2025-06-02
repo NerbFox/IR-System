@@ -54,6 +54,7 @@ class OriginalProcess:
             input_text, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
         )
         
+        
     def process_batch_input(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """
         Process a single input text to create a term frequency matrix.

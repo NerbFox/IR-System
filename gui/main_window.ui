@@ -255,7 +255,7 @@
         <item row="5" column="0" colspan="4">
          <widget class="QGroupBox" name="groupBox_5">
           <property name="title">
-           <string>Term Expansion Option</string>
+           <string>Term Expansion Options</string>
           </property>
           <property name="checkable">
            <bool>false</bool>
@@ -264,26 +264,6 @@
            <string>fill_background</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
-           <item row="4" column="0">
-            <widget class="QRadioButton" name="radioButton_1">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Add all expanded terms to query</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QRadioButton" name="radioButton_2">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Add only limited number of terms in query</string>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="1">
             <widget class="QSpinBox" name="spinBox_term_limit">
              <property name="minimum">
@@ -297,10 +277,33 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="0">
+            <widget class="QRadioButton" name="radioButton_1">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Add all expanded terms to query</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QRadioButton" name="radioButton_2">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Add only limited number of terms in query</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
-        <item row="6" column="0" colspan="4">
+        <item row="7" column="0" colspan="4">
          <layout class="QHBoxLayout" name="horizontalLayout_1">
           <item>
            <widget class="QPushButton" name="pushButton_1">
@@ -317,6 +320,42 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item row="6" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>BERT Options</string>
+          </property>
+          <widget class="QRadioButton" name="radioButton_fullbert">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>40</y>
+             <width>89</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Full Bert</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="radioButton_bertexp">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>40</y>
+             <width>261</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Bert Expansion</string>
+           </property>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

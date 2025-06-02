@@ -25,8 +25,6 @@ def compute_bert(sentences, model, tokenizer):
     """
     if not isinstance(sentences, list):
         sentences = [sentences]  # Ensure sentences is a list
-        
-    # Encode the sentences
     encoding = tokenizer.batch_encode_plus(
         sentences,
         padding=True,          # Pad to the maximum sequence length
@@ -138,7 +136,7 @@ def compute_bert_expanded_query(query, documents, model, tokenizer, name='bert_w
     query_embedding = compute_bert(query, model, tokenizer).reshape(1, -1)
 
     # Get unique words from all documents
-    document_words = list(set(word for doc in documents for word in doc.split()))
+    document_words = list(set(word for idx, doc in documents for word in doc.split()))
     
     # Compute embeddings for all unique words
     document_embeddings = compute_bert_document_embeddings(document_words, model, tokenizer, name=name, recompute=recompute)

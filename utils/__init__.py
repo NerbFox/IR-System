@@ -11,9 +11,10 @@ from .tf_idf_calculation import compute_tf, compute_idf, compute_tfidf
 from .map_calculation import compute_average_precision, compute_mean_average_precision
 from .bert_calculation import compute_bert, compute_bert_document_embeddings, rank_documents_by_similarity, get_bert_model_and_tokenizer
 from .OriginalProcess import OriginalProcess
+from .ExpandProcess import ExpandProcess
 from .process import calculate_inverted
 
 __all__ = ['xp', 'compute_tf', 'compute_idf', 'compute_tfidf',
            'compute_average_precision', 'compute_mean_average_precision',
            'compute_bert', 'compute_bert_document_embeddings', 'rank_documents_by_similarity',
-           'get_bert_model_and_tokenizer', 'OriginalProcess', 'calculate_inverted']
+           'get_bert_model_and_tokenizer', 'OriginalProcess', 'calculate_inverted', 'ExpandProcess']

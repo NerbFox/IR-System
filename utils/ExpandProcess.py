@@ -143,7 +143,7 @@ class ExpandProcess:
         Returns:
             float: The computed MAP value.
         """
-        if self.relevant is None or self.input_indices is None:
+        if self.relevant is None:
             raise ValueError("Relevant documents not set. Please set relevant documents using set_relevant method.")
         
         average_precisions = []
@@ -190,6 +190,18 @@ class ExpandProcess:
                 return ap
         return 0.0
     
+    def preprocess_and_expand_single(self, input_text, stop_word_elim, stemming, num_of_added):
+            docs = [(0, input_text)]  
+            queries = preprocess_data(docs, stop_word_elim, stemming)
+            # list of tuples: List of (index, preprocessed_content) tuples.
+            preprocessed_data_input = [content for _, content in queries]
+            expanded_queries = [self.compute_expanded_query(content, k_words=num_of_added) for content in preprocessed_data_input]
+            
+            preprocessed_data_input = [
+            content + ' ' + ' '.join(expanded_query) for content, expanded_query in zip(preprocessed_data_input, expanded_queries)
+            ]
+            return preprocessed_data_input
+    
     def preprocess_and_expand_batch(self, path_to_file, stop_word_elim, stemming, num_of_added):
             docs = parse_corpus_file(path_to_file)
             queries = preprocess_data(docs, stop_word_elim, stemming)
@@ -217,7 +229,7 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        preprocessed_data_input = self.preprocess_and_expand_batch([input_text], stop_word_elim, stemming, num_of_added)[0]
+        preprocessed_data_input = self.preprocess_and_expand_single(input_text, stop_word_elim, stemming, num_of_added)[0]
         
         ranked_indices, similarity_scores = self.rank_documents_bert(
             embeddings=self.doc_embeddings,
@@ -225,7 +237,7 @@ class ExpandProcess:
         )
         
         # get source indices from ranked indices
-        self.ranking = [self.source_indices[i] for i in ranked_indices]
+        self.ranking = [[self.source_indices[i] for i in ranked_indices]]
         self.similarity_scores = similarity_scores
         
     def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
@@ -252,8 +264,24 @@ class ExpandProcess:
             ) for content in preprocessed_data_input
         ]
         # get source indices from ranked indices
-        self.list_ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
+        self.ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
         self.list_similarity_scores = [list_similarity_scores for _, list_similarity_scores in result]
+    
+    def get_ranking_bert(self, index):
+        """
+        Get the ranking of documents based on BERT embeddings for a specific input index.
+        
+        Args:
+            index (int): The index of the input document.
+        
+        Returns:
+            list: Ranked document indices and their similarity scores.
+        """
+        if index in self.input_indices:
+            index_position = self.input_indices.index(index)
+            return self.ranking[index_position], self.list_similarity_scores[index_position]
+        else:
+            raise ValueError(f"Index {index} not found in input indices.")
     
     def bert_expand_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
         """
@@ -270,7 +298,7 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        preprocessed_data_input = self.preprocess_and_expand_batch([input_text], stop_word_elim, stemming, num_of_added)[0]
+        preprocessed_data_input = self.preprocess_and_expand_single(input_text, stop_word_elim, stemming, num_of_added)[0]
         
         self.input_tf_matrix, self.input_indices, _ = process_single_input(
             preprocessed_data_input, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf

@@ -3,7 +3,7 @@ import sys
 import logging
 from multiprocessing import freeze_support
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils import OriginalProcess
+from utils import OriginalProcess, ExpandProcess
 os.environ["QT_QUICK_BACKEND"] = "software"
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
 os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
@@ -70,6 +70,7 @@ extra = {
 }
 
 original_process = OriginalProcess()
+expand_process = ExpandProcess()
 
 class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def __init__(self):
@@ -212,6 +213,18 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
                 scheme_tf = self.tf_method,
                 scheme_idf="log"
             )
+            
+            expand_process.process_source(
+                file_path,
+                self.main.checkBox_2.isChecked(),
+                self.main.checkBox_1.isChecked(),
+                tf = tf,
+                idf = idf,
+                normalize= normalize,
+                scheme_tf = self.tf_method,
+                scheme_idf="log"
+            )
+            
             self.ready_to_process = True
             self.main.pushButton_2.setDisabled(False)
         else:
@@ -221,6 +234,7 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def handle_input_process(self):
         input_text = self.main.lineEdit.text().strip()
         if input_text:
+            
             tf = False
             idf = False
             normalize = False
@@ -250,6 +264,38 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
                 scheme_tf = self.tf_method,
                 scheme_idf="log"
             )
+            
+            is_full_bert = self.main.radioButton_fullbert.isChecked()
+            is_add_all = self.main.radioButton_1.isChecked()
+            if is_add_all:
+                num_of_added = -1
+            else:
+                num_of_added = self.main.spinBox_term_limit.value()
+                            
+            if is_full_bert:
+                expand_process.bert_instant_single(
+                    input_text=input_text,
+                    stop_word_elim=self.main.checkBox_2.isChecked(),
+                    stemming=self.main.checkBox_1.isChecked(),
+                    tf = tf,
+                    idf = idf,
+                    normalize= normalize,
+                    scheme_tf = self.tf_method,
+                    scheme_idf="log",
+                    num_of_added=num_of_added
+                )
+            else:
+                expand_process.bert_expand_single(
+                    input_text=input_text,
+                    stop_word_elim=self.main.checkBox_2.isChecked(),
+                    stemming=self.main.checkBox_1.isChecked(),
+                    tf = tf,
+                    idf = idf,
+                    normalize= normalize,
+                    scheme_tf = self.tf_method,
+                    scheme_idf="log",
+                    num_of_added=num_of_added
+                )
             
     def handle_batch_input(self):
         file_path, _ = QFileDialog.getOpenFileName(self.main, "Select Input File", "", "All Files (*)")
@@ -284,10 +330,43 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
                 scheme_idf="log"
             )
             
+            is_full_bert = self.main.radioButton_fullbert.isChecked()
+            is_add_all = self.main.radioButton_1.isChecked()
+            if is_add_all:
+                num_of_added = -1
+            else:
+                num_of_added = self.main.spinBox_term_limit.value()
+                            
+            if is_full_bert:
+                expand_process.bert_instant_batch(
+                    path_to_file=file_path,
+                    stop_word_elim=self.main.checkBox_2.isChecked(),
+                    stemming=self.main.checkBox_1.isChecked(),
+                    tf = tf,
+                    idf = idf,
+                    normalize= normalize,
+                    scheme_tf = self.tf_method,
+                    scheme_idf="log",
+                    num_of_added=num_of_added
+                )
+            else:
+                expand_process.bert_expand_batch(
+                    path_to_file=file_path,
+                    stop_word_elim=self.main.checkBox_2.isChecked(),
+                    stemming=self.main.checkBox_1.isChecked(),
+                    tf = tf,
+                    idf = idf,
+                    normalize= normalize,
+                    scheme_tf = self.tf_method,
+                    scheme_idf="log",
+                    num_of_added=num_of_added
+                )
+            
     def handle_relevant_input(self):
         file_path, _ = QFileDialog.getOpenFileName(self.main, "Select Input File", "", "All Files (*)")
         if file_path:
             original_process.set_relevant(filepath=file_path)
+            expand_process.set_relevant(filepath=file_path)
             
 class InvertedFileWindow(QMainWindow):
     def __init__(self):
@@ -362,11 +441,14 @@ class ResultWindow(QMainWindow):
             raise RuntimeError("Unsupported Qt version.")
         
         self.ui.tableWidget_exp.setRowCount(len(original_process.source_indices))
+        self.ui.tableWidget_exp_2.setRowCount(len(original_process.source_indices))
         self.ui.spinBox_retrieved.setMaximum(max(original_process.input_indices))
         self.ui.spinBox_retrieved.setMinimum(min(original_process.input_indices))
         self.ui.pushButton_process_retrieved.clicked.connect(self.show_result)
         self.ui.ori_value.setText(str(original_process.get_MAP()))
+        self.ui.exp_value.setText(str(expand_process.get_MAP()))
         self.ui.export_original.clicked.connect(self.export_original_ranking)
+        self.ui.export_expanded.clicked.connect(self.export_expanded_ranking)
     
     def show_result(self):
         index = self.ui.spinBox_retrieved.value()
@@ -374,6 +456,11 @@ class ResultWindow(QMainWindow):
         self.ui.ori_ap_value.setText(str(original_process.get_ap(index)))
         for row in range(len(original_process.source_indices)):
             self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
+        
+        exp_ranking = expand_process.get_ranking(index)
+        self.ui.exp_ap_value.setText(str(expand_process.get_ap(index)))
+        for row in range(len(expand_process.source_indices)):
+            self.ui.tableWidget_exp_2.setItem(row, 0, QTableWidgetItem(str(exp_ranking[row][0])))    
             
     def export_original_ranking(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Ranking", "", "Text Files (*.text)")
@@ -385,6 +472,21 @@ class ResultWindow(QMainWindow):
                     f.write(".I\n")
                     f.write(f"{index}\n")
                     f.write(f"AP.\n{original_process.get_ap(index)}\n")
+                    f.write(".X\n")
+                    for doc_index, score in ranking:
+                        f.write(f"{doc_index} {score}\n")
+                    f.write("\n")
+                    
+    def export_expanded_ranking(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save Expanded Ranking", "", "Text Files (*.text)")
+        if file_path:
+            with open(file_path, 'w') as f:
+                f.write(f"MAP.\n{expand_process.get_MAP()}\n")
+                for index in expand_process.input_indices:
+                    ranking = expand_process.get_ranking(index)
+                    f.write(".I\n")
+                    f.write(f"{index}\n")
+                    f.write(f"AP.\n{expand_process.get_ap(index)}\n")
                     f.write(".X\n")
                     for doc_index, score in ranking:
                         f.write(f"{doc_index} {score}\n")
