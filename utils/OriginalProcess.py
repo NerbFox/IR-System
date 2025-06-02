@@ -12,6 +12,7 @@ class OriginalProcess:
         self.idf = None
         self.freq = None
         self.relevant = None
+        self.ap = []
         
     def process_source(self, path, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """
@@ -128,11 +129,28 @@ class OriginalProcess:
 
             if precision_at_k:
                 average_precisions.append(sum(precision_at_k) / len(relevant_docs))
+                self.ap.append((input_idx, sum(precision_at_k) / len(relevant_docs)))
             else:
                 average_precisions.append(0.0)
+                self.ap.append((input_idx, 0.0))
 
         if not average_precisions:
             return 0.0
 
         return sum(average_precisions) / len(average_precisions)
+    
+    def get_ap(self, input_index):
+        """
+        Get the Average Precision (AP) for a specific input index.
+        
+        Args:
+            input_index (str): The index of the input document.
+        
+        Returns:
+            float: The Average Precision for the specified input index.
+        """
+        for idx, ap in self.ap:
+            if idx == input_index:
+                return ap
+        return 0.0
         

@@ -371,6 +371,7 @@ class ResultWindow(QMainWindow):
     def show_result(self):
         index = self.ui.spinBox_retrieved.value()
         ranking = original_process.get_ranking(index)
+        self.ui.ori_ap_value.setText(str(original_process.get_ap(index)))
         for row in range(len(original_process.source_indices)):
             self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
             
@@ -378,10 +379,12 @@ class ResultWindow(QMainWindow):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Ranking", "", "Text Files (*.text)")
         if file_path:
             with open(file_path, 'w') as f:
+                f.write(f"MAP.\n{original_process.get_MAP()}\n")
                 for index in original_process.input_indices:
                     ranking = original_process.get_ranking(index)
                     f.write(".I\n")
                     f.write(f"{index}\n")
+                    f.write(f"AP.\n{original_process.get_ap(index)}\n")
                     f.write(".X\n")
                     for doc_index, score in ranking:
                         f.write(f"{doc_index} {score}\n")

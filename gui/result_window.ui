@@ -34,6 +34,13 @@
         <string>Document Retrieval</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2_inverted">
+        <item row="8" column="0" colspan="5">
+         <widget class="QPushButton" name="export_expanded">
+          <property name="text">
+           <string>Export Expanded Query Retrieval</string>
+          </property>
+         </widget>
+        </item>
         <item row="6" column="0">
          <widget class="QLabel" name="exp_text">
           <property name="sizePolicy">
@@ -68,7 +75,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" colspan="4">
+        <item row="0" column="0" colspan="7">
          <widget class="QGroupBox" name="groupBox_1_retrieved">
           <property name="title">
            <string>Input Query IDX</string>
@@ -107,7 +114,7 @@
           </layout>
          </widget>
         </item>
-        <item row="1" column="0" colspan="4">
+        <item row="1" column="0" colspan="7">
          <widget class="QGroupBox" name="groupBox_5_retrieved">
           <property name="title">
            <string>RETRIEVED DOCUMENTS</string>
@@ -253,17 +260,38 @@
           </layout>
          </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="5" column="0" colspan="5">
          <widget class="QPushButton" name="export_original">
           <property name="text">
            <string>Export Original Query Retrieval</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QPushButton" name="export_expanded">
+        <item row="3" column="1">
+         <widget class="QLabel" name="ori_ap_text">
           <property name="text">
-           <string>Export Expanded Query Retrieval</string>
+           <string>Original Query AP:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="ori_ap_value">
+          <property name="text">
+           <string>0.00</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="exp_text_2">
+          <property name="text">
+           <string>Expanded Query AP:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLabel" name="exp_ap_value">
+          <property name="text">
+           <string>0.00</string>
           </property>
          </widget>
         </item>
