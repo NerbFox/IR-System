@@ -22,9 +22,7 @@ class ExpandProcess:
         self.tokenizer = None
         self.word_embeddings_name = None
         self.doc_embeddings_name = None
-        self.ranking = None
         self.list_ranking = None
-        self.similarity_scores = None
         self.list_similarity_scores = None
         
     def process_source(self, path, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
@@ -237,8 +235,8 @@ class ExpandProcess:
         )
         
         # get source indices from ranked indices
-        self.ranking = [self.source_indices[i] for i in ranked_indices]
-        self.similarity_scores = similarity_scores
+        self.list_ranking = [[self.source_indices[i] for i in ranked_indices]]
+        self.list_similarity_scores = [similarity_scores]
         
     def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
         """
@@ -278,7 +276,7 @@ class ExpandProcess:
         """
         if index in self.input_indices:
             index_position = self.input_indices.index(index)
-            return self.ranking[index_position], self.list_similarity_scores[index_position]
+            return self.list_ranking[index_position], self.list_similarity_scores[index_position]
         else:
             raise ValueError(f"Index {index} not found in input indices.")
     
