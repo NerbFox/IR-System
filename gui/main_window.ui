@@ -110,7 +110,7 @@
              <item>
               <widget class="QLineEdit" name="lineEdit">
                <property name="placeholderText">
-                <string>Enter folder path manually...</string>
+                <string>Enter input query...</string>
                </property>
               </widget>
              </item>

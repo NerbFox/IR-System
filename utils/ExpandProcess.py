@@ -24,6 +24,7 @@ class ExpandProcess:
         self.doc_embeddings_name = None
         self.list_ranking = None
         self.list_similarity_scores = None
+        self.list_expanded_query = None
         
     def process_source(self, path, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """
@@ -56,7 +57,6 @@ class ExpandProcess:
         # print(f"Type of docs: {type(self.docs)}, Shape of docs: {self.docs[0]}")
         # docs is array of tuples (index, content)
         self.docs = list(map(lambda x: x[1], self.docs))  # Extracting only the content from the tuples
-        print(f"array_docs 1st element: {self.docs[0]}")
         self.doc_embeddings = compute_bert_document_embeddings(
             self.docs, self.model, self.tokenizer, name=self.doc_embeddings_name, recompute=False
         )
@@ -214,7 +214,7 @@ class ExpandProcess:
         return 0.0
     
     def preprocess_and_expand_single(self, input_text, stop_word_elim, stemming, num_of_added):
-            docs = [(0, input_text)]  
+            docs = [(1, input_text)]  
             queries = preprocess_data(docs, stop_word_elim, stemming)
             # list of tuples: List of (index, preprocessed_content) tuples.
             preprocessed_data_input = [content for _, content in queries]
@@ -252,11 +252,11 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        preprocessed_data_input = preprocess_data([input_text], stop_word_elim, stemming)[0][1]
+        preprocessed_data_input = preprocess_data([(1, input_text)], stop_word_elim, stemming)[0][1]
         # Compute expanded query
         expanded_query = self.compute_expanded_query(preprocessed_data_input, k_words=num_of_added)
         preprocessed_data_input += ' ' + ' '.join(expanded_query)
-        
+        self.list_expanded_query = [preprocessed_data_input]
         ranked_indices, similarity_scores = self.rank_documents_bert(
             query=preprocessed_data_input
         )
@@ -287,6 +287,7 @@ class ExpandProcess:
         print(f"Processing instant batch input from {path_to_file}...")
         preprocessed_data_input = self.preprocess_and_expand_batch(path_to_file, stop_word_elim, stemming, num_of_added)
         
+        self.list_expanded_query = preprocessed_data_input
         result = [
             self.rank_documents_bert(
                 query=content
@@ -335,7 +336,7 @@ class ExpandProcess:
         """
         # Placeholder for actual implementation
         preprocessed_data_input = self.preprocess_and_expand_single(input_text, stop_word_elim, stemming, num_of_added)[0]
-        
+        self.list_expanded_query = [preprocessed_data_input]
         self.input_tf_matrix, self.input_indices, _ = process_single_input(
             preprocessed_data_input, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
         )
@@ -361,6 +362,8 @@ class ExpandProcess:
             (id, content + ' ' + ' '.join(self.compute_expanded_query(content, k_words=num_of_added)))
             for id, content in res
         ]
+        
+        self.list_expanded_query = [content for _, content in res]
         
         self.input_tf_matrix, self.input_indices, _ = process_batch_input_bert(
             res, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf

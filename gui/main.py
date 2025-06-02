@@ -457,7 +457,7 @@ class ResultWindow(QMainWindow):
         self.ui.spinBox_retrieved.setMinimum(min(original_process.input_indices))
         self.ui.pushButton_process_retrieved.clicked.connect(self.show_result)
         self.ui.ori_value.setText(str(original_process.get_MAP()))
-        self.ui.exp_value.setText(str(expand_process.get_MAP()))
+        self.ui.exp_value.setText(str(expand_process.get_MAP(full_bert=is_fullbert)))
         self.ui.export_original.clicked.connect(self.export_original_ranking)
         self.ui.export_expanded.clicked.connect(self.export_expanded_ranking)
     
@@ -467,16 +467,15 @@ class ResultWindow(QMainWindow):
         self.ui.ori_ap_value.setText(str(original_process.get_ap(index)))
         for row in range(len(original_process.source_indices)):
             self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
+            self.ui.tableWidget_exp.setItem(row, 1, QTableWidgetItem(str(ranking[row][1])))
         
         
         self.ui.exp_ap_value.setText(str(expand_process.get_ap(index)))
-        exp_ranking = []
-        if is_fullbert:
-            exp_ranking = expand_process.get_ranking_bert(index)
-        else:
-            exp_ranking = expand_process.get_ranking(index)
+        exp_ranking = expand_process.get_ranking(index, full_bert=is_fullbert)
+    
         for row in range(len(expand_process.source_indices)):
                 self.ui.tableWidget_exp_2.setItem(row, 0, QTableWidgetItem(str(exp_ranking[row][0])))    
+                self.ui.tableWidget_exp_2.setItem(row, 1, QTableWidgetItem(str(exp_ranking[row][1])))
             
     def export_original_ranking(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Ranking", "", "Text Files (*.text)")
@@ -499,11 +498,8 @@ class ResultWindow(QMainWindow):
             with open(file_path, 'w') as f:
                 f.write(f"MAP.\n{expand_process.get_MAP()}\n")
                 for index in expand_process.input_indices:
-                    ranking = []
-                    if is_fullbert:
-                        ranking = expand_process.get_ranking_bert(index)
-                    else:
-                        ranking = expand_process.get_ranking(index)
+                    ranking = expand_process.get_ranking(index, full_bert=is_fullbert)
+
                     f.write(".I\n")
                     f.write(f"{index}\n")
                     f.write(f"AP.\n{expand_process.get_ap(index)}\n")
@@ -538,6 +534,12 @@ class ExpandedWindow(QMainWindow):
             raise RuntimeError("Unsupported Qt version.")
         
         self.ui.pushButton.clicked.connect(self.show_result_window)
+        
+        self.ui.tableWidget_inverted.setRowCount(len(expand_process.source_indices))
+        
+        for row in range(len(expand_process.list_expanded_query)):
+            term = expand_process.list_expanded_query[row]
+            self.ui.tableWidget_inverted.setItem(row, 0, QTableWidgetItem(str(term)))
         
     def show_result_window(self):
         self.result_window = ResultWindow()
