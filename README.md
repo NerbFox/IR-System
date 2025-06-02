@@ -68,6 +68,18 @@ cd .\gui\
 python main.py --pyside6
 ```
 
+5. To start the process, adjust the modifications and/or methods preferred, then select source document file using the `SELECT FILE` button.
+   5.1. To use single query input, type in the desired query in the text box, then click the `Process` button. Input the relevant documents information using the `SELECT RELEVANT DOCUMENT FILE` button. The File Format should be (Y,Z, and so on are the relevant document indices):
+
+```
+  0 Y 0 0
+  0 Z 0 0 
+  ...
+```
+  5.2. To use batched query input, use the `SELECT FILE` button and select the input file. Input the relevant documents information using the `SELECT RELEVANT DOCUMENT FILE` button.
+  
+
+
 <!-- <a name="screenshots"></a>
 
 ## Screenshots
