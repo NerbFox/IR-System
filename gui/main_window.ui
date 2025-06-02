@@ -28,7 +28,243 @@
         <string>Main Content</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="7" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox_1">
+          <property name="title">
+           <string>Input Query</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="class" stdset="0">
+           <string>fill_background</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="1" column="2">
+            <widget class="QRadioButton" name="radioButton_batch">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Batched Input</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QRadioButton" name="radioButton_single">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Singe Input</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" colspan="2">
+            <widget class="QPushButton" name="pushButton_file">
+             <property name="text">
+              <string>SELECT FILE</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_folder">
+             <item>
+              <widget class="QLineEdit" name="lineEdit">
+               <property name="placeholderText">
+                <string>Enter input query...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_process">
+               <property name="text">
+                <string>Process</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="0" colspan="4">
+            <widget class="QPushButton" name="pushButton_relevant">
+             <property name="text">
+              <string>SELECT RELEVANT DOCUMENT FILE</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="14" column="0" colspan="4">
+         <layout class="QHBoxLayout" name="horizontalLayout_1">
+          <item>
+           <widget class="QPushButton" name="pushButton_1">
+            <property name="text">
+             <string>Expand Query</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>Check Inverted File</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Document Source</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="class" stdset="0">
+           <string>fill_background</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="pushButton_folder">
+             <property name="text">
+              <string>SELECT FILE</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string>Term Expansion Options</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="class" stdset="0">
+           <string>fill_background</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="5" column="0">
+            <widget class="QRadioButton" name="radioButton_2">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Add only limited number of terms in query</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="spinBox_term_limit">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="radioButton_1">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Add all expanded terms to query</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item row="3" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>BERT Options</string>
+          </property>
+          <widget class="QRadioButton" name="radioButton_fullbert">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>40</y>
+             <width>89</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Full Bert</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="radioButton_bertexp">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>40</y>
+             <width>261</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Bert Expansion</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="4">
+         <widget class="QGroupBox" name="groupBox_tf_method">
+          <property name="title">
+           <string>TF Method</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="class" stdset="0">
+           <string>fill_background</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <widget class="QComboBox" name="combobox">
+             <item>
+              <property name="text">
+               <string>Logarithmic</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Binary</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Augmented</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Raw</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="4">
          <widget class="QGroupBox" name="groupBox_4">
           <property name="title">
            <string>Weighting</string>
@@ -87,137 +323,6 @@
          </widget>
         </item>
         <item row="0" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox_1">
-          <property name="title">
-           <string>Input Query</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="class" stdset="0">
-           <string>fill_background</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="1" column="2" colspan="2">
-            <widget class="QPushButton" name="pushButton_file">
-             <property name="text">
-              <string>SELECT FILE</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_folder">
-             <item>
-              <widget class="QLineEdit" name="lineEdit">
-               <property name="placeholderText">
-                <string>Enter input query...</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_process">
-               <property name="text">
-                <string>Process</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="2">
-            <widget class="QRadioButton" name="radioButton_batch">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Batched Input</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QRadioButton" name="radioButton_single">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Singe Input</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="4">
-            <widget class="QPushButton" name="pushButton_relevant">
-             <property name="text">
-              <string>SELECT RELEVANT DOCUMENT FILE</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>Document Source</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="class" stdset="0">
-           <string>fill_background</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="pushButton_folder">
-             <property name="text">
-              <string>SELECT FILE</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox_tf_method">
-          <property name="title">
-           <string>TF Method</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="class" stdset="0">
-           <string>fill_background</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_7">
-           <item row="0" column="0">
-            <widget class="QComboBox" name="combobox">
-             <item>
-              <property name="text">
-               <string>Logarithmic</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Binary</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Augmented</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Raw</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="4">
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Mods</string>
@@ -250,111 +355,6 @@
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox_5">
-          <property name="title">
-           <string>Term Expansion Options</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="class" stdset="0">
-           <string>fill_background</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="5" column="1">
-            <widget class="QSpinBox" name="spinBox_term_limit">
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="value">
-              <number>5</number>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QRadioButton" name="radioButton_1">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Add all expanded terms to query</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QRadioButton" name="radioButton_2">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Add only limited number of terms in query</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="4">
-         <layout class="QHBoxLayout" name="horizontalLayout_1">
-          <item>
-           <widget class="QPushButton" name="pushButton_1">
-            <property name="text">
-             <string>Expand Query</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="text">
-             <string>Check Inverted File</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="6" column="0" colspan="4">
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>BERT Options</string>
-          </property>
-          <widget class="QRadioButton" name="radioButton_fullbert">
-           <property name="geometry">
-            <rect>
-             <x>20</x>
-             <y>40</y>
-             <width>89</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Full Bert</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QRadioButton" name="radioButton_bertexp">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>40</y>
-             <width>261</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Bert Expansion</string>
-           </property>
-          </widget>
          </widget>
         </item>
        </layout>
