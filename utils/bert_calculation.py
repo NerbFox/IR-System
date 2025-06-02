@@ -63,12 +63,11 @@ def rank_documents_by_similarity(embeddings, query_embedding):
     """
         
     # Compute cosine similarity
-    similarities = cosine_similarity(embeddings, query_embedding)
+    similarities = cosine_similarity(embeddings, query_embedding).flatten()
     
     # Rank documents by similarity
-    ranked_indices = np.argsort(similarities, axis=0)[::-1]  # Descending order
-    ranked_indices = ranked_indices.flatten()  # Flatten to 1D array
-    similarities = similarities.flatten()
+    ranked_indices = np.argsort(similarities)[::-1]  # Descending order
+    similarities = similarities[ranked_indices]  # Sort similarities to match ranked_indices
     
     return ranked_indices, similarities # return similarities
 

@@ -29,7 +29,7 @@ class OriginalProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        self.source_tf_matrix, self.source_indices, self.vocab = process_document(
+        self.source_tf_matrix, self.source_indices, self.vocab, _ = process_document(
             path, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize
         )
         
