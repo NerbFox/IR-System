@@ -360,7 +360,6 @@ def process_batch_input_bert(res, vocab_list, stop_word_elim=False, stemming=Fal
     
     return tf_mat_weighted, doc_indices, vocab
 
-
 def cosine_similarity(vec1, vec2):
     """
     Compute the cosine similarity between two vectors.

@@ -1,4 +1,4 @@
-from .process import process_document, process_single_input, rank_documents_by_similarity, calculate_inverted, process_relevant_documents, process_batch_input_bert, preprocess_data, parse_corpus_file
+from .process import process_document, process_single_input, rank_documents_by_similarity, calculate_inverted, process_relevant_documents, process_batch_input_bert, preprocess_data, parse_corpus_file, process_batch_input
 from .bert_calculation import get_bert_model_and_tokenizer, compute_bert_document_embeddings, compute_bert, compute_bert_expanded_query
 from .bert_calculation import rank_documents_by_similarity as rank_documents_by_similarity_bert, get_document_words
 import numpy as np
@@ -159,7 +159,7 @@ class ExpandProcess:
             relevant_docs = set(self.relevant.get(input_idx, []))
             if not relevant_docs:
                 continue 
-
+            # print(f"Processing input index: {input_idx}")
             ranked_results = self.get_ranking(input_idx) 
             ranked_doc_indices = [doc_idx for doc_idx, _ in ranked_results]
 
@@ -245,6 +245,10 @@ class ExpandProcess:
             query=preprocessed_data_input
         )
         
+        _, self.input_indices, _ = process_single_input(
+            preprocessed_data_input, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
+        )
+        
         # get source indices from ranked indices
         self.list_ranking = [[self.source_indices[i] for i in ranked_indices]]
         self.list_similarity_scores = [similarity_scores]
@@ -264,6 +268,7 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
+        print(f"Processing instant batch input from {path_to_file}...")
         preprocessed_data_input = self.preprocess_and_expand_batch(path_to_file, stop_word_elim, stemming, num_of_added)
         
         result = [
@@ -271,9 +276,16 @@ class ExpandProcess:
                 query=content
             ) for content in preprocessed_data_input
         ]
+        
+        _, self.input_indices, _ = process_batch_input(
+            path_to_file, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
+        )
+        
         # get source indices from ranked indices
         self.list_ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
         self.list_similarity_scores = [list_similarity_scores for _, list_similarity_scores in result]
+        
+        print(f"Done processing instant batch input from {path_to_file}")
     
     def get_ranking_bert(self, index):
         """
