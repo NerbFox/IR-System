@@ -106,7 +106,7 @@ def get_bert_model_and_tokenizer(model_name='bert-base-uncased'):
         tokenizer.save_pretrained(name)
         return model, tokenizer
 
-def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_embeddings.npy', recompute=True):
+def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_document_embeddings.npy', recompute=True):
     """
     Compute BERT embeddings for documents.
     """
@@ -119,7 +119,48 @@ def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_emb
         embeddings = compute_bert(sentences, model, tokenizer)
         np.save(name, embeddings)
     return embeddings
+
+def compute_bert_expanded_query(query, documents, model, tokenizer, name='bert_word_embeddings.npy', k=3, recompute=True):
+    """
+    Compute BERT embeddings for a query and expand it with similar terms.
+
+    Args:
+        query (str): The query to expand.
+        documents (list): List of documents to use for term expansion.
+        model: The BERT model to use for embedding.
+        tokenizer: Bert Tokenizer
+        k (int): Number of terms to expand the query with.
+        recompute (bool): Whether to recompute the embeddings or load from file.
     
+    Returns:
+        list: The expanded query terms.
+    """
+    # Compute the query embedding
+    query_embedding = compute_bert(query, model, tokenizer).reshape(1, -1)
+
+    # Get unique words from all documents
+    document_words = list(set(word for doc in documents for word in doc.split()))
+    
+    # Compute embeddings for all unique words
+    document_embeddings = compute_bert_document_embeddings(document_words, model, tokenizer, name=name, recompute=recompute)
+
+    # Compute cosine similarity between query and each word embedding
+    similarities = cosine_similarity(query_embedding, document_embeddings)[0]
+
+    # Exclude original query terms from expansion
+    query_terms = set(word.lower() for word in query.split())
+    # Get indices of top-k most similar words not in the original query
+    sorted_indices = np.argsort(similarities)[::-1][:k + len(query_terms)]  
+    
+    expanded_terms = [
+        document_words[idx]
+        for idx in sorted_indices
+        if document_words[idx].lower() not in query_terms
+    ][:k]
+    
+    return expanded_terms
+    
+
 if __name__ == "__main__":
     # Example usage
     import time
@@ -134,9 +175,10 @@ if __name__ == "__main__":
         "The dog is lazy and sleeps all day. The dog is not quick.",
         "The fox is quick and brown. The fox is very clever too.",
     ]
-    
+    # clean, remove .
+    sentences_ = [s.replace('.', '').replace(',', '') for s in sentences]  # Simple cleaning
     time1 = time.time()
-    embeddings = compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_embeddings.npy', recompute=False)
+    embeddings = compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_document_embeddings.npy', recompute=True)
     time2 = time.time()
     print("Time taken to compute/load embeddings:", time2 - time1)
     
@@ -151,4 +193,16 @@ if __name__ == "__main__":
     print("Query:", query)
     print("Ranked Documents:")
     for idx in ranked_indices:
+        print(sentences[idx])
+        
+    # Example using compute_bert_expanded_query
+    expanded_query = compute_bert_expanded_query(query, sentences_, model, tokenizer, k=3, recompute=True, name='bert_word_embeddings.npy')
+    print("\nExpanded Query Terms:", expanded_query)
+    print("Final Query:", query.split() + expanded_query)
+    
+    expanded_query_embedding = compute_bert(" ".join(query.split() + expanded_query), model, tokenizer)
+    ranked_indices_expanded, sim_expanded = rank_documents_by_similarity(embeddings, expanded_query_embedding)
+    print("Similarities with Expanded Query:", sim_expanded)
+    print("Ranked Documents with Expanded Query:")
+    for idx in ranked_indices_expanded:
         print(sentences[idx])
