@@ -25,25 +25,31 @@ def compute_bert(sentences, model, tokenizer):
     """
     if not isinstance(sentences, list):
         sentences = [sentences]  # Ensure sentences is a list
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Computing BERT embeddings on device: {device}")
+    model = model.to(device)
+
     encoding = tokenizer.batch_encode_plus(
         sentences,
-        padding=True,          # Pad to the maximum sequence length
-        truncation=True,       # Truncate to the maximum sequence length if necessary
-        return_tensors='pt',    # Return PyTorch tensors
-        add_special_tokens=True,  # Add special tokens CLS and SEP
-        return_attention_mask=True  # Return attention mask
+        padding=True,
+        truncation=True,
+        return_tensors='pt',
+        add_special_tokens=True,
+        return_attention_mask=True
     )
-    
-    # Compute the embeddings
+
+    # Move tensors to device
+    encoding = {k: v.to(device) for k, v in encoding.items()}
+
     with torch.no_grad():
-        outputs = model(**encoding) # Use the encoding directly
-    
-    # Get the last hidden state
+        outputs = model(**encoding)
+
     last_hidden_state = outputs.last_hidden_state
-    
+
     # Average the token embeddings to get sentence embeddings
     sentence_embeddings = last_hidden_state.mean(dim=1).cpu().numpy()
-    
+
     return sentence_embeddings
 
 def rank_documents_by_similarity(embeddings, query_embedding):
@@ -108,6 +114,7 @@ def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_doc
     Compute BERT embeddings for documents.
     """
     # Check if the embeddings are already saved locally
+    name = os.path.join(os.getcwd(), name)
     if os.path.exists(name) and not recompute:
         print(f"Loading embeddings from {name}")
         embeddings = np.load(name)
@@ -117,7 +124,30 @@ def compute_bert_document_embeddings(sentences, model, tokenizer, name='bert_doc
         np.save(name, embeddings)
     return embeddings
 
-def compute_bert_expanded_query(query, documents, model, tokenizer, name='bert_word_embeddings.npy', k=3, recompute=True):
+def get_document_words(documents, name='words.npy'):
+    """
+    Extract unique words from a list of documents.
+
+    Args:
+        documents (list): List of documents (strings).
+
+    Returns:
+        list: Unique words from the documents.
+    """
+    # Use absolute path based on current working directory
+    name = os.path.join(os.getcwd(), name)
+    if os.path.exists(name):
+        print(f"Loading words from {name}")
+        words = np.load(name, allow_pickle=True).tolist()
+    else:
+        print(f"Extracting unique words and saving to {name}")
+        words = list(dict.fromkeys(
+            word for doc in documents for word in doc.split()
+        ))
+        np.save(name, words)
+    return words
+
+def compute_bert_expanded_query(query, documents, model, tokenizer, name1='bert_word_embeddings.npy', name2='words.npy', k=5, recompute=True):
     """
     Compute BERT embeddings for a query and expand it with similar terms.
 
@@ -136,10 +166,10 @@ def compute_bert_expanded_query(query, documents, model, tokenizer, name='bert_w
     query_embedding = compute_bert(query, model, tokenizer).reshape(1, -1)
 
     # Get unique words from all documents
-    document_words = list(set(word for idx, doc in documents for word in doc.split()))
+    document_words = get_document_words(documents, name=name2)
     
     # Compute embeddings for all unique words
-    document_embeddings = compute_bert_document_embeddings(document_words, model, tokenizer, name=name, recompute=recompute)
+    document_embeddings = compute_bert_document_embeddings(document_words, model, tokenizer, name=name1, recompute=recompute)
 
     # Compute cosine similarity between query and each word embedding
     similarities = cosine_similarity(query_embedding, document_embeddings)[0]
@@ -193,7 +223,7 @@ if __name__ == "__main__":
         print(sentences[idx])
         
     # Example using compute_bert_expanded_query
-    expanded_query = compute_bert_expanded_query(query, sentences_, model, tokenizer, k=3, recompute=True, name='bert_word_embeddings.npy')
+    expanded_query = compute_bert_expanded_query(query, sentences_, model, tokenizer, k=3, recompute=True, name1='bert_word_embeddings.npy', name2='words.npy')
     print("\nExpanded Query Terms:", expanded_query)
     print("Final Query:", query.split() + expanded_query)
     

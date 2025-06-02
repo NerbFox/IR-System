@@ -1,6 +1,6 @@
 from .process import process_document, process_single_input, rank_documents_by_similarity, calculate_inverted, process_relevant_documents, process_batch_input_bert, preprocess_data, parse_corpus_file
 from .bert_calculation import get_bert_model_and_tokenizer, compute_bert_document_embeddings, compute_bert, compute_bert_expanded_query
-from .bert_calculation import rank_documents_by_similarity as rank_documents_by_similarity_bert
+from .bert_calculation import rank_documents_by_similarity as rank_documents_by_similarity_bert, get_document_words
 import numpy as np
 
 class ExpandProcess:
@@ -17,9 +17,9 @@ class ExpandProcess:
         self.ap = []
         self.docs = None
         self.doc_embeddings = None
-        self.word_embeddings = None
         self.model = None
         self.tokenizer = None
+        self.words_name = None
         self.word_embeddings_name = None
         self.doc_embeddings_name = None
         self.list_ranking = None
@@ -51,18 +51,29 @@ class ExpandProcess:
         # Create Document Embeddings 
         self.doc_embeddings_name = path.split('/')[-1].split('.')[0] + '_bert_document_embeddings.npy'
         print(f"Computing BERT document embeddings and saving to {self.doc_embeddings_name}")
+        # print(f"Number of documents: {len(self.docs)}")
+        # # type and shape of docs: 
+        # print(f"Type of docs: {type(self.docs)}, Shape of docs: {self.docs[0]}")
+        # docs is array of tuples (index, content)
+        self.docs = list(map(lambda x: x[1], self.docs))  # Extracting only the content from the tuples
+        print(f"array_docs 1st element: {self.docs[0]}")
         self.doc_embeddings = compute_bert_document_embeddings(
             self.docs, self.model, self.tokenizer, name=self.doc_embeddings_name, recompute=False
         )
         
         # Create Word Embeddings
         self.word_embeddings_name = path.split('/')[-1].split('.')[0] + '_bert_word_embeddings.npy'
-        print(f"Computing BERT word embeddings and saving to {self.word_embeddings_name}")
-        self.word_embeddings = compute_bert_document_embeddings(
-            self.vocab, self.model, self.tokenizer, name=self.word_embeddings_name, recompute=False
+        
+        self.words_name = path.split('/')[-1].split('.')[0] + '_words.npy'
+        words = get_document_words(self.docs, name=self.words_name)
+        
+        _ = compute_bert_document_embeddings(
+            words, self.model, self.tokenizer, name=self.word_embeddings_name, recompute=False
         )
         
         self.freq, self.tf, self.idf = calculate_inverted(self.source_tf_matrix,scheme_tf=scheme_tf)
+        
+        print(f"Done processing source documents")
     
     def compute_expanded_query(self, query, k_words=3):
         """
@@ -78,7 +89,7 @@ class ExpandProcess:
         if self.model is None or self.tokenizer is None:
             raise ValueError("BERT model and tokenizer are not initialized. Please process source documents first.")
         
-        return compute_bert_expanded_query(query, self.docs, self.model, self.tokenizer, k=k_words, name=self.word_embeddings_name, recompute=False)
+        return compute_bert_expanded_query(query, self.docs, self.model, self.tokenizer, k=k_words, name1=self.word_embeddings_name, name2=self.words_name, recompute=False)
     
     def rank_documents_bert(self, query):
         """
