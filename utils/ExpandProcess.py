@@ -237,7 +237,7 @@ class ExpandProcess:
             ]
             return preprocessed_data_input
     
-    def bert_instant_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
+    def bert_instant_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=1):
         """
         Process a single input text to create a term frequency matrix using BERT.
         
@@ -269,7 +269,7 @@ class ExpandProcess:
         self.list_ranking = [[self.source_indices[i] for i in ranked_indices]]
         self.list_similarity_scores = [similarity_scores]
         
-    def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
+    def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=1):
         """
         Process a batch of input texts to create a term frequency matrix using BERT, returning a ranking.
         
@@ -319,7 +319,7 @@ class ExpandProcess:
         else:
             raise ValueError(f"Index {index} not found in input indices.")
     
-    def bert_expand_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
+    def bert_expand_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=1):
         """
         Process a single input text to create a term frequency matrix using BERT with expansion.
         
@@ -340,7 +340,7 @@ class ExpandProcess:
             preprocessed_data_input, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
         )
                 
-    def bert_expand_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf, num_of_added=-1):
+    def bert_expand_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf, num_of_added=1):
         """
         Process a single input text to create a term frequency matrix.
         
