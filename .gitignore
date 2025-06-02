@@ -11,5 +11,7 @@ __pycache__/
 # Bert Models
 /models
 
+gui/models/
+
 # Embeddings 
 *.npy

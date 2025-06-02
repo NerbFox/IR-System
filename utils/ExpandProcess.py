@@ -82,7 +82,7 @@ class ExpandProcess:
         
         return compute_bert_expanded_query(query, self.docs, self.model, self.tokenizer, k=k_words, name=self.word_embeddings_name, recompute=False)
     
-    def rank_documents_bert(self, query, k_words=3):
+    def rank_documents_bert(self, query):
         """
         Rank documents based on BERT embeddings similarity.
         
@@ -99,9 +99,7 @@ class ExpandProcess:
         if self.doc_embeddings is None:
             raise ValueError("Document embeddings are not computed. Please process source documents first.")
         
-        expanded_query = self.compute_expanded_query(query, k_words)
-        query_final = ' '.join(expanded_query)
-        query_embedding = compute_bert(query_final, self.model, self.tokenizer).reshape(1, -1)
+        query_embedding = compute_bert(query, self.model, self.tokenizer).reshape(1, -1)
         ranked_indices, similarity_scores = rank_documents_by_similarity_bert(
             embeddings=self.doc_embeddings,
             query_embedding=query_embedding
@@ -229,15 +227,17 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        preprocessed_data_input = self.preprocess_and_expand_single(input_text, stop_word_elim, stemming, num_of_added)[0]
+        preprocessed_data_input = preprocess_data([input_text], stop_word_elim, stemming)[0][1]
+        # Compute expanded query
+        expanded_query = self.compute_expanded_query(preprocessed_data_input, k_words=num_of_added)
+        preprocessed_data_input += ' ' + ' '.join(expanded_query)
         
         ranked_indices, similarity_scores = self.rank_documents_bert(
-            embeddings=self.doc_embeddings,
-            query_embedding=compute_bert(str(preprocessed_data_input), self.model, self.tokenizer).reshape(1, -1)
+            query=preprocessed_data_input
         )
         
         # get source indices from ranked indices
-        self.ranking = [[self.source_indices[i] for i in ranked_indices]]
+        self.ranking = [self.source_indices[i] for i in ranked_indices]
         self.similarity_scores = similarity_scores
         
     def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=-1):
@@ -259,12 +259,11 @@ class ExpandProcess:
         
         result = [
             self.rank_documents_bert(
-                embeddings=self.doc_embeddings,
-                query_embedding=compute_bert(str(content), self.model, self.tokenizer).reshape(1, -1)
+                query=content
             ) for content in preprocessed_data_input
         ]
         # get source indices from ranked indices
-        self.ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
+        self.list_ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
         self.list_similarity_scores = [list_similarity_scores for _, list_similarity_scores in result]
     
     def get_ranking_bert(self, index):
