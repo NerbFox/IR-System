@@ -71,6 +71,7 @@ extra = {
 
 original_process = OriginalProcess()
 expand_process = ExpandProcess()
+is_fullbert = True
 
 class RuntimeStylesheets(QMainWindow, QtStyleTools):
     def __init__(self):
@@ -112,6 +113,9 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
         self.main.pushButton_1.clicked.connect(self.show_expanded_window)
         self.main.combobox.currentIndexChanged.connect(self.handle_tf_method)
         self.main.pushButton_relevant.clicked.connect(self.handle_relevant_input)
+        
+        self.main.radioButton_fullbert.clicked.connect(self.handle_bert_mode)
+        self.main.radioButton_bertexp.clicked.connect(self.handle_bert_mode)
 
         try:
             self.main.setWindowTitle(f'{self.main.windowTitle()}')
@@ -179,6 +183,13 @@ class RuntimeStylesheets(QMainWindow, QtStyleTools):
             self.tf_method = "augmented"
         elif self.main.combobox.currentText() == "Raw":
             self.tf_method = "raw"
+    
+    def handle_bert_mode(self):
+        global is_fullbert
+        if self.main.radioButton_fullbert.isChecked():
+            is_fullbert = True
+        elif self.main.radioButton_bertexp.isChecked():
+            is_fullbert = False
                     
 
     def handle_source_document_select(self):
@@ -457,10 +468,15 @@ class ResultWindow(QMainWindow):
         for row in range(len(original_process.source_indices)):
             self.ui.tableWidget_exp.setItem(row, 0, QTableWidgetItem(str(ranking[row][0])))
         
-        exp_ranking = expand_process.get_ranking(index)
+        
         self.ui.exp_ap_value.setText(str(expand_process.get_ap(index)))
+        exp_ranking = []
+        if is_fullbert:
+            exp_ranking = expand_process.get_ranking_bert(index)
+        else:
+            exp_ranking = expand_process.get_ranking(index)
         for row in range(len(expand_process.source_indices)):
-            self.ui.tableWidget_exp_2.setItem(row, 0, QTableWidgetItem(str(exp_ranking[row][0])))    
+                self.ui.tableWidget_exp_2.setItem(row, 0, QTableWidgetItem(str(exp_ranking[row][0])))    
             
     def export_original_ranking(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Ranking", "", "Text Files (*.text)")
@@ -483,7 +499,11 @@ class ResultWindow(QMainWindow):
             with open(file_path, 'w') as f:
                 f.write(f"MAP.\n{expand_process.get_MAP()}\n")
                 for index in expand_process.input_indices:
-                    ranking = expand_process.get_ranking(index)
+                    ranking = []
+                    if is_fullbert:
+                        ranking = expand_process.get_ranking_bert(index)
+                    else:
+                        ranking = expand_process.get_ranking(index)
                     f.write(".I\n")
                     f.write(f"{index}\n")
                     f.write(f"AP.\n{expand_process.get_ap(index)}\n")
