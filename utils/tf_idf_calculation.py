@@ -21,7 +21,8 @@ def compute_tf(tf_matrix, scheme="raw"):
     if scheme == "raw":
         return tf_matrix
     if scheme == "log":
-        return xp.where(tf_matrix > 0, 1 + xp.log2(tf_matrix), 0)
+        tf_matrix = xp.clip(tf_matrix, a_min=1e-10, a_max=None) # Prevent log2 zero
+        return 1 + xp.log2(tf_matrix)
     if scheme == "binary":
         return xp.where(tf_matrix > 0, 1, 0)
     if scheme == "augmented":
