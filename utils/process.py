@@ -309,6 +309,34 @@ def process_single_input(input_text, vocab_list, stop_word_elim=False, stemming=
     
     return tf_mat_weighted, doc_indices, vocab
 
+def process_single_input_bert(input_text, vocab_list, stop_word_elim=False, stemming=False, tf=False, idf=False, scheme_tf="raw", scheme_idf="raw", normalize=True, source_idf=None, num_of_added = -1):
+    """
+    Process a single input text and return the weighted TF-IDF matrix.
+
+    Args:
+        input_text (str): The input text to process.
+        stop_word_elim (bool): Whether to remove stop words.
+        stemming (bool): Whether to apply stemming.
+        tf (bool): Whether to compute term frequency.
+        idf (bool): Whether to compute inverse document frequency.
+        scheme_tf (str): TF scheme: "raw", "log", "binary", or "augmented".
+        scheme_idf (str): IDF scheme: "raw" or "log".
+        normalize (bool): Whether to apply cosine normalization.
+        source_idf (np.ndarray): The IDF vector from the source corpus.
+        num_of_added (int): Number of added word using bert (-1 = all words)
+
+
+    Returns:
+        np.ndarray: The weighted TF-IDF matrix for the input text.
+    """
+    docs = [(0, input_text)]
+    res = preprocess_data(docs, stop_word_elim, stemming)
+    # PROSES BERT EXPANSION DI SINI, res = [(0, text)] langsung ke textnya aja prosesnya, bikin function baru
+    tf_dict = convert_to_tf_dict_with_vocab(res, vocab_list)
+    tf_matrix, doc_indices, vocab= build_tf_matrix(tf_dict)
+    tf_mat_weighted = calculate_weighted_input(tf_matrix, tf, idf, scheme_tf, scheme_idf, normalize, source_idf)
+    
+    return tf_mat_weighted, doc_indices, vocab
 
 def process_batch_input(path_to_file, vocab_list, stop_word_elim=False, stemming=False, tf=False, idf=False, scheme_tf="raw", scheme_idf="raw", normalize=True, source_idf=None):
     """
@@ -335,6 +363,36 @@ def process_batch_input(path_to_file, vocab_list, stop_word_elim=False, stemming
     tf_mat_weighted = calculate_weighted_input(tf_matrix, tf, idf, scheme_tf, scheme_idf, normalize, source_idf)
     
     return tf_mat_weighted, doc_indices, vocab
+
+def process_batch_input_bert(path_to_file, vocab_list, stop_word_elim=False, stemming=False, tf=False, idf=False, scheme_tf="raw", scheme_idf="raw", normalize=True, source_idf=None, num_of_added = -1):
+    """
+    Process a single input text and return the weighted TF-IDF matrix.
+
+    Args:
+        input_text (str): The input text to process.
+        stop_word_elim (bool): Whether to remove stop words.
+        stemming (bool): Whether to apply stemming.
+        tf (bool): Whether to compute term frequency.
+        idf (bool): Whether to compute inverse document frequency.
+        scheme_tf (str): TF scheme: "raw", "log", "binary", or "augmented".
+        scheme_idf (str): IDF scheme: "raw" or "log".
+        normalize (bool): Whether to apply cosine normalization.
+        source_idf (np.ndarray): The IDF vector from the source corpus.
+        num_of_added (int): Number of added word using bert (-1 = all words)
+
+
+    Returns:
+        np.ndarray: The weighted TF-IDF matrix for the input text.
+    """
+    docs = parse_corpus_file(path_to_file)
+    res = preprocess_data(docs, stop_word_elim, stemming)
+    # PROSES BERT EXPANSION DI SINI, res = [(index, text)] langsung ke textnya aja prosesnya, bikin function baru
+    tf_dict = convert_to_tf_dict_with_vocab(res, vocab_list)
+    tf_matrix, doc_indices, vocab= build_tf_matrix(tf_dict)
+    tf_mat_weighted = calculate_weighted_input(tf_matrix, tf, idf, scheme_tf, scheme_idf, normalize, source_idf)
+    
+    return tf_mat_weighted, doc_indices, vocab
+
 
 def cosine_similarity(vec1, vec2):
     """
