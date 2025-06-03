@@ -496,7 +496,7 @@ class ResultWindow(QMainWindow):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Expanded Ranking", "", "Text Files (*.text)")
         if file_path:
             with open(file_path, 'w') as f:
-                f.write(f"MAP.\n{expand_process.get_MAP()}\n")
+                f.write(f"MAP.\n{expand_process.get_MAP(full_bert=is_fullbert)}\n")
                 for index in expand_process.input_indices:
                     ranking = expand_process.get_ranking(index, full_bert=is_fullbert)
 
