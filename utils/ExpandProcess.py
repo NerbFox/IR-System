@@ -2,6 +2,7 @@ from .process import process_document, process_single_input, rank_documents_by_s
 from .bert_calculation import get_bert_model_and_tokenizer, compute_bert_document_embeddings, compute_bert, compute_bert_expanded_query
 from .bert_calculation import rank_documents_by_similarity as rank_documents_by_similarity_bert, get_document_words
 import numpy as np
+import os
 
 class ExpandProcess:
     def __init__(self):
@@ -25,6 +26,7 @@ class ExpandProcess:
         self.list_ranking = None
         self.list_similarity_scores = None
         self.list_expanded_query = None
+        self.query_embeddings = None
         
     def process_source(self, path, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """
@@ -84,7 +86,7 @@ class ExpandProcess:
             k_words (int): Number of terms to expand the query with.
         
         Returns:
-            list: Expanded query terms/words.
+            tuple: Expanded query terms/words, initial query embeddings.
         """
         if self.model is None or self.tokenizer is None:
             raise ValueError("BERT model and tokenizer are not initialized. Please process source documents first.")
@@ -100,7 +102,7 @@ class ExpandProcess:
             document_embeddings (np.ndarray): Precomputed document embeddings.
         
         Returns:
-            list: Ranked document indices and their similarity scores.
+            tuple: Ranked document indices, similarity scores, and query embedding from BERT.
         """
         if self.model is None or self.tokenizer is None:
             raise ValueError("BERT model and tokenizer are not initialized. Please process source documents first.")
@@ -114,7 +116,7 @@ class ExpandProcess:
             query_embedding=query_embedding
         )
         
-        return ranked_indices, similarity_scores
+        return ranked_indices, similarity_scores, query_embedding
             
     def get_ranking(self, index, full_bert):
         """
@@ -131,7 +133,6 @@ class ExpandProcess:
             raise ValueError(f"Index {index} not found in input indices.")
 
         idx = self.input_indices.index(index)
-
         if full_bert:
             ranked_results = list(zip(self.list_ranking[idx], self.list_similarity_scores[idx]))
             return sorted(ranked_results, key=lambda x: x[1], reverse=True)
@@ -218,7 +219,9 @@ class ExpandProcess:
             queries = preprocess_data(docs, stop_word_elim, stemming)
             # list of tuples: List of (index, preprocessed_content) tuples.
             preprocessed_data_input = [content for _, content in queries]
-            expanded_queries = [self.compute_expanded_query(content, k_words=num_of_added) for content in preprocessed_data_input]
+            # Get the expanded query from tuple (expanded_query, query_embedding)
+            # Note: compute_expanded_query returns a tuple (expanded_query, query_embedding)
+            expanded_queries = [self.compute_expanded_query(content, k_words=num_of_added)[0] for content in preprocessed_data_input]
             
             preprocessed_data_input = [
             content + ' ' + ' '.join(expanded_query) for content, expanded_query in zip(preprocessed_data_input, expanded_queries)
@@ -230,12 +233,15 @@ class ExpandProcess:
             queries = preprocess_data(docs, stop_word_elim, stemming)
             # list of tuples: List of (index, preprocessed_content) tuples.
             preprocessed_data_input = [content for _, content in queries]
-            expanded_queries = [self.compute_expanded_query(content, k_words=num_of_added) for content in preprocessed_data_input]
+            # Get the expanded query from tuple (expanded_query, query_embedding)
+            # Note: compute_expanded_query returns a tuple (expanded_query, query_embedding)
+            expanded_results = [self.compute_expanded_query(content, k_words=num_of_added) for content in preprocessed_data_input]
+            expanded_queries, initial_query_embeddings = zip(*expanded_results)
             
             preprocessed_data_input = [
             content + ' ' + ' '.join(expanded_query) for content, expanded_query in zip(preprocessed_data_input, expanded_queries)
             ]
-            return preprocessed_data_input
+            return preprocessed_data_input, initial_query_embeddings
     
     def bert_instant_single(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=1):
         """
@@ -254,10 +260,10 @@ class ExpandProcess:
         # Placeholder for actual implementation
         preprocessed_data_input = preprocess_data([(1, input_text)], stop_word_elim, stemming)[0][1]
         # Compute expanded query
-        expanded_query = self.compute_expanded_query(preprocessed_data_input, k_words=num_of_added)
+        expanded_query, input_query_embedding = self.compute_expanded_query(preprocessed_data_input, k_words=num_of_added)
         preprocessed_data_input += ' ' + ' '.join(expanded_query)
         self.list_expanded_query = [preprocessed_data_input]
-        ranked_indices, similarity_scores = self.rank_documents_bert(
+        ranked_indices, similarity_scores, expanded_query_embedding = self.rank_documents_bert(
             query=preprocessed_data_input
         )
         
@@ -268,6 +274,14 @@ class ExpandProcess:
         # get source indices from ranked indices
         self.list_ranking = [[self.source_indices[i] for i in ranked_indices]]
         self.list_similarity_scores = [similarity_scores]
+
+        # Write the input_query_embedding and expanded_query_embedding to npy arrays
+        os.makedirs('outputs/query_embeddings', exist_ok=True)
+        with open(os.path.join('outputs/query_embeddings', 'fullbert_single_input_query_embedding.npy'), 'wb') as f:
+            np.save(f, input_query_embedding)
+        with open(os.path.join('outputs/query_embeddings', 'fullbert_single_expanded_query_embedding.npy'), 'wb') as f:
+            np.save(f, expanded_query_embedding)
+
         
     def bert_instant_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf="log", num_of_added=1):
         """
@@ -285,7 +299,7 @@ class ExpandProcess:
         """
         # Placeholder for actual implementation
         print(f"Processing instant batch input from {path_to_file}...")
-        preprocessed_data_input = self.preprocess_and_expand_batch(path_to_file, stop_word_elim, stemming, num_of_added)
+        preprocessed_data_input, initial_query_embeddings = self.preprocess_and_expand_batch(path_to_file, stop_word_elim, stemming, num_of_added)
         
         self.list_expanded_query = preprocessed_data_input
         result = [
@@ -299,8 +313,16 @@ class ExpandProcess:
         )
         
         # get source indices from ranked indices
-        self.list_ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _ in result]
-        self.list_similarity_scores = [list_similarity_scores for _, list_similarity_scores in result]
+        self.list_ranking = [[self.source_indices[i] for i in ranked_indices] for ranked_indices, _, _ in result]
+        self.list_similarity_scores = [list_similarity_scores for _, list_similarity_scores, _ in result]
+        expanded_query_embeddings = [query_embedding for _, _, query_embedding in result]
+
+        # Write the initial_query_embeddings and expanded_query_embeddings to npy arrays
+        os.makedirs('outputs/query_embeddings', exist_ok=True)
+        with open(os.path.join('outputs/query_embeddings', 'fullbert_batch_input_query_embeddings.npy'), 'wb') as f:
+            np.save(f, initial_query_embeddings)
+        with open(os.path.join('outputs/query_embeddings', 'fullbert_batch_expanded_query_embeddings.npy'), 'wb') as f:
+            np.save(f, expanded_query_embeddings)
         
         print(f"Done processing instant batch input from {path_to_file}")
     

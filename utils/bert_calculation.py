@@ -185,7 +185,7 @@ def compute_bert_expanded_query(query, documents, model, tokenizer, name1='bert_
         if document_words[idx].lower() not in query_terms
     ][:k]
     
-    return expanded_terms
+    return expanded_terms, query_embedding
     
 
 if __name__ == "__main__":
