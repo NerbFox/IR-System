@@ -13,7 +13,7 @@ try:
         GPU_AVAILABLE = True
     else:
         raise ImportError("CuPy is not available or GPU is not available.")
-except ImportError:
+except:
     import numpy as np
     xp = np
     GPU_AVAILABLE = False
