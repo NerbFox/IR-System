@@ -8,8 +8,6 @@ Information Retrieval System with BERT Embeddings<br/>
 3. [Features](#features)
 4. [Technologies Used](#technologies-used)
 5. [Setup](#setup)
-<!-- 8. [Screenshots](#screenshots) -->
-6. [Structure](#structure)
 
 
 <a name="general-information"></a>
@@ -47,87 +45,29 @@ A simple Python-based GUI built with Qt (using PySide2/PySide6 or PyQt5/PyQt6) a
 <a name="technologies-used"></a>
 
 ## Technologies Used
-- PyQt
-- Qt-Material
-- NumPy and CuPy
+- PySide6 (Qt for Python GUI)
+- qt-material (Qt Material Design themes)
+- NumPy (numerical computing)
+- CuPy (GPU-accelerated array computing)
+- scikit-learn (machine learning)
+- SciPy (scientific computing)
+- NLTK (natural language processing)
+- transformers (Hugging Face BERT and other models)
+- torch (PyTorch, deep learning)
+- tokenizers (Hugging Face tokenization)
+- Jinja2 (templating)
+- requests (HTTP requests)
+- tqdm (progress bars)
+- sympy (symbolic mathematics)
+- networkx (graph analysis)
+- pytest (testing)
+- PyYAML (YAML parsing)
+- Other utilities: packaging, filelock, fsspec, joblib, safetensors, typing_extensions, charset-normalizer, idna, urllib3, certifi, click, colorama, iniconfig, MarkupSafe, mpmath, pluggy, setuptools, shiboken6, threadpoolctl
 
 <a name="setup"></a>
 
 ## Setup
-1. Download all the requirements
-2. Clone this repository to your local directory by using this command in your terminal
-```bash
-git clone https://github.com/rifqifarhansyah/Tubes2_dicarryVieridanZaki.git
-```
-3. Go to `gui` directory using the command below
-```bash
-cd .\gui\
-```
-4. Run the model using a command below
-```bash
-python main.py --pyside6
-```
-
-5. To start the process, adjust the modifications and/or methods preferred, then select source document file using the `SELECT FILE` button.
-   5.1. To use single query input, type in the desired query in the text box, then click the `Process` button. Input the relevant documents information using the `SELECT RELEVANT DOCUMENT FILE` button. The File Format should be (Y,Z, and so on are the relevant document indices):
-
-```
-  0 Y 0 0
-  0 Z 0 0 
-  ...
-```
-  5.2. To use batched query input, use the `SELECT FILE` button and select the input file. Input the relevant documents information using the `SELECT RELEVANT DOCUMENT FILE` button.
-  
-
-
-<!-- <a name="screenshots"></a>
-
-## Screenshots
-<p>
-  <img src="/img/SS1.png/">
-  <p>Figure 1. Config File (*txt)</p>
-  <nl>
-  <img src="/img/SS2.png/">
-  <p>Figure 2. Initial Appearance of the Program</p>
-  <nl>
-  <img src="/img/SS3.png/">
-  <p>Figure 3. Result</p>
-  <nl>
-</p> -->
-
-<a name="structure"></a>
-
-## Structure
-```bash
-│   .gitignore
-│   conftest.py
-│   README.md
-│   requirements.txt
-│   __init__.py
-│
-├───gui
-│   │   inverted_window.ui
-│   │   main.py
-│   │   main_window.ui
-│   │   my_theme.xml
-│   │   queryexp_window.ui
-│   │   README.md
-│   │   result_window.ui
-│   │
-│   └───img
-│           logo.png
-│
-├───tests
-│       test_bert_calculation.py
-│       test_map_calculation.py
-│       test_map_tf_idf_calculation.py
-│       test_tf_idf_calculation.py
-│       __init__.py
-│
-└───utils
-        bert_calculation.py
-        cuda_utils.py
-        map_calculation.py
-        tf_idf_calculation.py
-        __init__.py
-```
+1. Clone this repository
+2. Download all the required packages by running `pip install -r requirements.txt` in the terminal.
+3. Go to `gui` directory using the command `cd gui`
+4. Run the GUI using the command below `python main.py`
