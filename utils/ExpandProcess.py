@@ -362,6 +362,11 @@ class ExpandProcess:
         self.input_tf_matrix, self.input_indices, _ = process_single_input(
             preprocessed_data_input, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
         )
+
+        # Write the input_tf_matrix to npy array
+        os.makedirs('outputs/input_tf_matrix', exist_ok=True)
+        with open(os.path.join('outputs/input_tf_matrix', 'comb_single_input_tf_matrix.npy'), 'wb') as f:
+            np.save(f, self.input_tf_matrix)
                 
     def bert_expand_batch(self, path_to_file, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf, num_of_added=1):
         """
@@ -381,7 +386,7 @@ class ExpandProcess:
         docs = parse_corpus_file(path_to_file)
         res = preprocess_data(docs, stop_word_elim, stemming)
         res = [
-            (id, content + ' ' + ' '.join(self.compute_expanded_query(content, k_words=num_of_added)))
+            (id, content + ' ' + ' '.join(self.compute_expanded_query(content, k_words=num_of_added)[0]))
             for id, content in res
         ]
         
@@ -390,3 +395,8 @@ class ExpandProcess:
         self.input_tf_matrix, self.input_indices, _ = process_batch_input_bert(
             res, self.vocab, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize, source_idf=self.idf
         )
+
+        # Write the input_tf_matrix to npy array
+        os.makedirs('outputs/input_tf_matrix', exist_ok=True)
+        with open(os.path.join('outputs/input_tf_matrix', 'comb_batch_input_tf_matrix.npy'), 'wb') as f:
+            np.save(f, self.input_tf_matrix)
