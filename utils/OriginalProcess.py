@@ -13,6 +13,7 @@ class OriginalProcess:
         self.freq = None
         self.relevant = None
         self.ap = []
+        self.freq = None
         
     def process_source(self, path, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """
@@ -29,11 +30,12 @@ class OriginalProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        self.source_tf_matrix, self.source_indices, self.vocab, _ = process_document(
+        self.source_tf_matrix, self.source_indices, self.vocab, _ , self.freq = process_document(
             path, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize
         )
         
-        self.freq, self.tf, self.idf = calculate_inverted(self.source_tf_matrix,scheme_tf=scheme_tf)
+        
+        self.tf, self.idf = calculate_inverted(self.freq,scheme_tf=scheme_tf)
                 
     def process_single_input(self, input_text, stop_word_elim, stemming, tf, idf, normalize, scheme_tf, scheme_idf):
         """

@@ -251,11 +251,10 @@ def calculate_inverted(tf_matrix, scheme_tf="raw", scheme_idf="log"):
         np.ndarray: The TF-IDF matrix.
     """
     
-    freq = compute_tf(tf_matrix, scheme="raw")
     tf = compute_tf(tf_matrix, scheme=scheme_tf)
     idf = compute_idf(tf_matrix, scheme=scheme_idf)
-        
-    return freq, tf, idf
+    
+    return tf, idf
 
 def process_document(path_to_document, stop_word_elim=False, stemming=False, tf=False, idf=False, scheme_tf="raw", scheme_idf="raw", normalize=True):
     """
@@ -280,7 +279,7 @@ def process_document(path_to_document, stop_word_elim=False, stemming=False, tf=
     tf_matrix, doc_indices, vocab = build_tf_matrix(tf_dict)
     tf_mat_weighted = calculate_weighted(tf_matrix, tf, idf, scheme_tf, scheme_idf, normalize)
     
-    return tf_mat_weighted, doc_indices, vocab, docs
+    return tf_mat_weighted, doc_indices, vocab, docs, tf_matrix
 
 def process_single_input(input_text, vocab_list, stop_word_elim=False, stemming=False, tf=False, idf=False, scheme_tf="raw", scheme_idf="raw", normalize=True, source_idf=None):
     """

@@ -41,7 +41,7 @@ class ExpandProcess:
             scheme_idf (str): Scheme for computing IDF.
         """
         # Placeholder for actual implementation
-        self.source_tf_matrix, self.source_indices, self.vocab, self.docs = process_document(
+        self.source_tf_matrix, self.source_indices, self.vocab, self.docs, self.freq = process_document(
             path, stop_word_elim, stemming, tf, idf, scheme_tf, scheme_idf, normalize
         )
         
@@ -71,7 +71,7 @@ class ExpandProcess:
             words, self.model, self.tokenizer, name=self.word_embeddings_name, recompute=False
         )
         
-        self.freq, self.tf, self.idf = calculate_inverted(self.source_tf_matrix,scheme_tf=scheme_tf)
+        self.tf, self.idf = calculate_inverted(self.freq,scheme_tf=scheme_tf)
         
         print(f"Done processing source documents")
     
